@@ -1,23 +1,21 @@
 package com.github.structlog4j;
 
-import com.github.structlog4j.format.IEncoder;
-import com.github.structlog4j.format.KeyValuePairEncoder;
+import com.github.structlog4j.format.IFormatter;
+import com.github.structlog4j.format.KeyValuePairFormatter;
 import lombok.experimental.UtilityClass;
-import lombok.extern.java.Log;
 
 /**
  * Common settings
  *
  * @author Jacek Furmakiewicz
  */
-@UtilityClass
+@UtilityClass // Lombok
 public class StructLog4J {
 
-    private LogFormat LOG_FORMAT = LogFormat.KEY_VALUE_PAIR;
-    private IEncoder ENCODER = KeyValuePairEncoder.getInstance();
+    private IFormatter formatter = KeyValuePairFormatter.getInstance();
 
     // thread local StringBuilder used for all log concatenation
-    final ThreadLocal<StringBuilder> BLD= new ThreadLocal<StringBuilder>() {
+    final ThreadLocal<StringBuilder> BLD = new ThreadLocal<StringBuilder>() {
         @Override
         protected StringBuilder initialValue() {
             return new StringBuilder();
@@ -31,20 +29,16 @@ public class StructLog4J {
     };
 
     /**
-     * Name of environment variable which can be set (e.g. in Docker container)
-     * to control what format we use (plain string, JSON, etc)
+     * Allows to override the default formatter. Should be only done once during application startup
+     * from the main thread to avoid any concurrency issues
+     * @param formatter Custom formatter implementing the IFormatter interface
      */
-    public static final String ENV_STRUCTLOG4J_FORMAT = "STRUCTLOG4J_FORMAT";
-
-    static {
-
+    public void setFormatter(IFormatter formatter) {
+        StructLog4J.formatter = formatter;
     }
 
-    public void setFormat(LogFormat format) {
-        if (format == LogFormat.KEY_VALUE_PAIR) {
-
-        } else {
-
-        }
+    // Returns the current encoder - internal only
+    IFormatter getFormatter() {
+        return formatter;
     }
 }

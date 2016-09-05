@@ -12,14 +12,14 @@ public class SLoggerFactory {
     /**
      * Returns logger for explicit name
      */
-    public ISLogger getLogger(String name) {
+    public ILogger getLogger(String name) {
         return new SLogger(name);
     }
 
     /**
      * Returns logger for source class that is generating entries
      */
-    public ISLogger getLogger(Class<?> source) {
+    public ILogger getLogger(Class<?> source) {
         return new SLogger(source);
     }
 }
