@@ -9,12 +9,11 @@ Standard Java messages look something like this
 
     Handled 4 events while processing the import batch processing
 
-This is human readable, but very difficult to parse by code in a log aggergation serivce, as every developer
-can enter any free form text they want, in any format.
+This is human readable, but very difficult to parse by code in a log aggregation serivce, as every developer can enter any free form text they want, in any format.
 
 Instead, we can generated a message like this
 
-   Handled events service="Import Batch" numberOfEvents=4
+    Handled events service="Import Batch" numberOfEvents=4
 
 This is very easy to parse, the message itself is just a plain description and all the context information is
 passed as separate key/value pairs (or in the future JSON, YAML, etc)
@@ -42,7 +41,9 @@ The **ILogger** interface is very simple and offers just these basic methods:
 
 Just pass in key/value pairs as parameters (all keys **must** be String, values can be anything), e.g.
 
-    log.info("Starting processing","user",securityContext.getPrincipal().getName(),"tenanId",securityContext.getTenantId());
+    log.info("Starting processing",
+                "user", securityContext.getPrincipal().getName(),
+                "tenanId",securityContext.getTenantId());
 
 which would generate a log message like:
 
@@ -54,7 +55,10 @@ There is no separate API for Throwable (like in SLF4j), just pass in the excepti
 important) and we will log its root cause message and the entire exception stack trace:
 
     } catch (Exception e) {
-        log.error("Error occcurred during batch processing","user",securityContext.getPrincipal().getName(),"tenanId",securityContext.getTenantId(), e);
+        log.error("Error occcurred during batch processing",
+            "user",securityContext.getPrincipal().getName(),
+            "tenanId",securityContext.getTenantId(), 
+            e);
     }
 
 which would generate a log message like:
@@ -90,7 +94,10 @@ and that will generate a log entry like:
 You can mix and match all of these together without any issues:
 
         } catch (Exception e) {
-            log.error("Error occcurred during batch processing",securityContext, e, "hostname", InetAddress.getLocalHost().getHostName());
+            log.error("Error occcurred during batch processing",
+                securityContext, 
+                e, 
+                "hostname", InetAddress.getLocalHost().getHostName());
         }
 
 and you would get:
