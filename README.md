@@ -111,7 +111,7 @@ MIT License.
 
 Use it at will, just don't sue me.
 
-# Dependencies
+## Dependencies
 
 The only dependency is the SLF4 API (MIT License as well).
 
