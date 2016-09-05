@@ -3,6 +3,34 @@
 Structured logging Java, on top of the SLF4J API.
 Designed to generate easily parsable log messages for consumption in services such as LogStash, Splunk, ElasticSearch, etc.
 
+## Adding to your project
+
+The artifacts for this library are published to the popular Bintray JCenter Maven repository.
+
+### Gradle
+
+    repositories {
+        jcenter()
+    }
+
+    compile 'structlog4j:structlog4j-api:0.1.0'
+
+### Maven
+
+    <repositories>
+      <repository>
+        <id>jcenter</id>
+          <url>http://jcenter.bintray.com</url>
+      </repository>
+    </repositories>
+
+    <dependency>
+      <groupId>structlog4j</groupId>
+      <artifactId>structlog4j-api</artifactId>
+      <version>0.1.0</version>
+      <type>pom</type>
+    </dependency>
+
 # Overview
 
 Standard Java messages look something like this

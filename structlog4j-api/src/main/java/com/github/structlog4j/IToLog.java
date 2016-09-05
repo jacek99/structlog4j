@@ -13,6 +13,7 @@ public interface IToLog {
     /**
      * Return an array of key/value pairs with values for logging, e.g.
      * return Object[]{"key1",this.getProperty1(),"key2",this.getProperty2()"};
+     * @return Array of key/value pairs to log
      */
     public Object[] toLog();
 }
