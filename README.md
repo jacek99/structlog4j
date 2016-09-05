@@ -57,13 +57,13 @@ important) and we will log its root cause message and the entire exception stack
     } catch (Exception e) {
         log.error("Error occcurred during batch processing",
             "user",securityContext.getPrincipal().getName(),
-            "tenanId",securityContext.getTenantId(), 
+            "tenanId",securityContext.getTenantId(),
             e);
     }
 
 which would generate a log message like:
 
-    Error occurreded during batch processing user=johndoe@gmail.com tenantId=SOME_TENANT_ID errorMessage="ORA-14094: Oracle Hates You"
+    Error occurred during batch processing user=johndoe@gmail.com tenantId=SOME_TENANT_ID errorMessage="ORA-14094: Oracle Hates You"
     ...followed by regular full stack trace of the exception...
 
 ## Enforcing custom logging format per object
@@ -95,14 +95,14 @@ You can mix and match all of these together without any issues:
 
         } catch (Exception e) {
             log.error("Error occcurred during batch processing",
-                securityContext, 
-                e, 
+                securityContext,
+                e,
                 "hostname", InetAddress.getLocalHost().getHostName());
         }
 
 and you would get:
 
-    Error occurreded during batch processing user=johndoe@gmail.com tenantId=SOME_TENANT_ID errorMessage="ORA-14094: Oracle Hates You" hostname=DEV_SERVER1
+    Error occurred during batch processing user=johndoe@gmail.com tenantId=SOME_TENANT_ID errorMessage="ORA-14094: Oracle Hates You" hostname=DEV_SERVER1
     ...followed by regular full stack trace of the exception...
 
 # License
