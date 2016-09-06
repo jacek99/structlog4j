@@ -13,7 +13,7 @@ The artifacts for this library are published to the popular Bintray JCenter Mave
         jcenter()
     }
 
-    compile 'structlog4j:structlog4j-api:0.1.0'
+    compile 'structlog4j:structlog4j-api:0.2.0'
 
 ### Maven
 
@@ -27,7 +27,7 @@ The artifacts for this library are published to the popular Bintray JCenter Mave
     <dependency>
       <groupId>structlog4j</groupId>
       <artifactId>structlog4j-api</artifactId>
-      <version>0.1.0</version>
+      <version>0.2.0</version>
       <type>pom</type>
     </dependency>
 
