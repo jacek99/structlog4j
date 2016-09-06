@@ -29,8 +29,6 @@ public class StructLog4J {
             super.get().setLength(0);
             return super.get();
         }
-
-        FunctionalInterface t;
     };
 
     /**
