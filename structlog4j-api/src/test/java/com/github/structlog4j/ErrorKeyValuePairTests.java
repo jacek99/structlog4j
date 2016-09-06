@@ -3,7 +3,6 @@ package com.github.structlog4j;
 import static org.junit.Assert.*;
 
 import com.github.structlog4j.samples.TestSecurityContext;
-import oracle.jrockit.jfr.jdkevents.ThrowableTracer;
 import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.impl.LogEntry;
@@ -21,6 +20,8 @@ public class ErrorKeyValuePairTests {
 
     @Before
     public void setup() {
+        StructLog4J.clearMandatoryContextSupplier();
+
         log = (SLogger) SLoggerFactory.getLogger(BasicKeyValuePairTests.class);
         entries = ((TestLogger)log.getSlfjLogger()).getEntries();
     }

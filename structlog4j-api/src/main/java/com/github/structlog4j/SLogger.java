@@ -6,6 +6,8 @@ import lombok.RequiredArgsConstructor;
 import org.slf4j.LoggerFactory;
 import org.slf4j.event.Level;
 
+import java.util.Optional;
+
 /**
  * Concrete implementation of the ILogger interface
  *
@@ -64,6 +66,31 @@ class SLogger implements ILogger {
         }
     }
 
+    @Override
+    public boolean isErrorEnabled() {
+        return slfjLogger.isErrorEnabled();
+    }
+
+    @Override
+    public boolean isWarnEnabled() {
+        return slfjLogger.isWarnEnabled();
+    }
+
+    @Override
+    public boolean isInfoEnabled() {
+        return slfjLogger.isInfoEnabled();
+    }
+
+    @Override
+    public boolean isDebugEnabled() {
+        return slfjLogger.isDebugEnabled();
+    }
+
+    @Override
+    public boolean isTraceEnabled() {
+        return slfjLogger.isTraceEnabled();
+    }
+
     private void log(Level level, String message, Object...params) {
         try {
             // just in case...
@@ -114,6 +141,12 @@ class SLogger implements ILogger {
                         }
                     }
                 }
+            }
+
+            // add mandatory context, if specified
+            Optional<IToLog> mandatory = StructLog4J.getMandatoryContextSupplier();
+            if (mandatory.isPresent()) {
+                handleIToLog(formatter,bld,mandatory.get());
             }
 
             formatter.end(bld);

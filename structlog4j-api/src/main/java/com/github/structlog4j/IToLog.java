@@ -8,6 +8,7 @@ import java.util.Map;
  *
  * @author Jacek Furmankiewicz
  */
+@FunctionalInterface
 public interface IToLog {
 
     /**

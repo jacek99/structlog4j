@@ -25,6 +25,8 @@ public class BasicKeyValuePairTests {
 
     @Before
     public void setup() {
+        StructLog4J.clearMandatoryContextSupplier();
+
         log = (SLogger) SLoggerFactory.getLogger(BasicKeyValuePairTests.class);
         entries = ((TestLogger)log.getSlfjLogger()).getEntries();
     }
@@ -191,6 +193,7 @@ public class BasicKeyValuePairTests {
 
     @Test
     public void allLevelsTest() {
+
         log.error("Error",iToLog);
         log.warn("Warning",iToLog);
         log.info("Information",iToLog);
@@ -215,4 +218,42 @@ public class BasicKeyValuePairTests {
         assertEquals(entries.toString(),"Trace userName=\"Test User\" tenantId=TEST_TENANT",entries.get(4).getMessage());
 
     }
+
+    @Test
+    public void kitchenSinkWithMandatoryContextTest() {
+
+        BusinessObjectContext ctx = new BusinessObjectContext("Country","CA");
+        Throwable rootCause = new RuntimeException("This is the root cause of the error");
+        Throwable t = new RuntimeException("Major exception",rootCause);
+
+        // define mandatory context lambfa
+        StructLog4J.setMandatoryContextSupplier(() -> new Object[]{"hostname","Titanic","serviceName","MyService"});
+
+        // mix and match in different order to ensure it all works
+        log.error("This is an error",iToLog,ctx,"key1",1L,"key2","Value 2",t);
+        log.error("This is an error",t,iToLog,ctx,"key1",1L,"key2","Value 2");
+        log.error("This is an error",iToLog,"key1",1L,t,ctx,"key2","Value 2");
+
+        assertEquals(entries.toString(),3,entries.size());
+        for(LogEntry entry : entries) {
+            assertEquals(entries.toString(), Level.ERROR,entry.getLevel());
+            assertTrue(entries.toString(), entry.getError().isPresent());
+        }
+
+        // all messages should have mandatory context fields specified at the end
+
+        // first
+        assertEquals(entries.toString(),"This is an error userName=\"Test User\" tenantId=TEST_TENANT entityName=Country entityId=CA key1=1 key2=\"Value 2\" errorMessage=\"This is the root cause of the error\" hostname=Titanic serviceName=MyService",
+                entries.get(0).getMessage());
+        // second
+        assertEquals(entries.toString(),"This is an error errorMessage=\"This is the root cause of the error\" userName=\"Test User\" tenantId=TEST_TENANT entityName=Country entityId=CA key1=1 key2=\"Value 2\" hostname=Titanic serviceName=MyService",
+                entries.get(1).getMessage());
+        // third
+        assertEquals(entries.toString(),"This is an error userName=\"Test User\" tenantId=TEST_TENANT key1=1 errorMessage=\"This is the root cause of the error\" entityName=Country entityId=CA key2=\"Value 2\" hostname=Titanic serviceName=MyService",
+                entries.get(2).getMessage());
+    }
+
+
+
+
 }

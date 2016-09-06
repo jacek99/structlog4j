@@ -133,6 +133,17 @@ and you would get:
     Error occurred during batch processing user=johndoe@gmail.com tenantId=SOME_TENANT_ID errorMessage="ORA-14094: Oracle Hates You" hostname=DEV_SERVER1
     ...followed by regular full stack trace of the exception...
 
+## Specifying mandatory context key/value pairs
+
+If you have specific key/value pairs that you would like logged automatically with every log entry (host nanem and service name are a good example),
+then you just have to specify a mandatory context lambda:
+
+    StructLog4J.setMandatoryContextSupplier(() -> new Object[]{
+        "hostname", InetAddress.getLocalHost().getHostName(),
+        "serviceName","MyService"});
+
+Now these mandatory key/value pairs will be logged automatically on **every** log entry, without the need to specify them manually.
+
 # License
 
 MIT License.
