@@ -135,7 +135,7 @@ and you would get:
 
 ## Specifying mandatory context key/value pairs
 
-If you have specific key/value pairs that you would like logged automatically with every log entry (host nanem and service name are a good example),
+If you have specific key/value pairs that you would like logged automatically with every log entry (host name and service name are a good example),
 then you just have to specify a mandatory context lambda:
 
     StructLog4J.setMandatoryContextSupplier(() -> new Object[]{
