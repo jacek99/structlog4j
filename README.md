@@ -39,7 +39,7 @@ Standard Java messages look something like this
 
 This is human readable, but very difficult to parse by code in a log aggregation serivce, as every developer can enter any free form text they want, in any format.
 
-Instead, we can generated a message like this
+Instead, we can generate a message like this
 
     Handled events service="Import Batch" numberOfEvents=4
 
@@ -51,7 +51,7 @@ passed as separate key/value pairs (or in the future JSON, YAML, etc)
 StructLog4J is implemented itself on top of the SLF4J API. Therefore any application that already uses SLF4J can
 start using it immediately as it requires no other changes to existing logging configuration.
 
-Instead of the standard SLF4J Logger, you must instantiate instead the StructLog4J Logger:
+Instead of the standard SLF4J Logger, you must instantiate the StructLog4J Logger:
 
     private ILogger log = SLoggerFactory.getLogger(MyClass.class);
 
