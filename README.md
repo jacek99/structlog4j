@@ -64,7 +64,7 @@ or as JSON (if using our JSON formatter):
         "airlineName": "United"
     }
 
-This is very easy to parse, the message itself is just a plain description and all the context information is passed as separate key/value pairs (or in the future JSON, YAML, etc)
+This is very easy to parse, the message itself is just a plain description and all the context information is passed as separate key/value pairs.
 
 When this type of log entry is forwarded to a log aggregation service (such as Splunk, Logstash, etc) it is trivial to parse it and extract context information from it.
 Thus, it is very easy to perform log analytics, which are criticial to many open applications (especially multi-tenant cloud applications).
