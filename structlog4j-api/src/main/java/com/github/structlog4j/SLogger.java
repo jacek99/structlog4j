@@ -1,6 +1,5 @@
 package com.github.structlog4j;
 
-import com.github.structlog4j.format.IFormatter;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.LoggerFactory;
@@ -14,7 +13,7 @@ import java.util.Optional;
  * @author Jacek Furmankiewicz
  */
 @RequiredArgsConstructor
-class SLogger implements ILogger {
+public class SLogger implements ILogger {
 
     private static final String KEY_ERROR_MESSAGE = "errorMessage";
     private static final String SPACE = " ";
@@ -24,7 +23,6 @@ class SLogger implements ILogger {
 
     SLogger(String name) {
         slfjLogger = LoggerFactory.getLogger(name);
-
     }
 
     SLogger(Class<?> source) {
@@ -99,42 +97,36 @@ class SLogger implements ILogger {
             }
 
             Throwable e = null;
-            StringBuilder bld = StructLog4J.BLD.get();
-            IFormatter formatter = StructLog4J.getFormatter();
+            IFormatter<Object> formatter = StructLog4J.getFormatter();
+            Object bld = formatter.start(slfjLogger);
+            formatter.addMessage(slfjLogger, bld, message);
 
-            formatter.start(bld).addMessage(bld,message);
-
-            boolean isPreviousKey = false;
             boolean processKeyValues = true; // set to false in case we encounter errors and cannot rely on the order any more
 
-            for (Object param : params) {
+            for(int i = 0; i < params.length;i++) {
+
+                Object param = params[i];
+
                 if (param instanceof IToLog) {
                     handleIToLog(formatter,bld, (IToLog) param);
-                    isPreviousKey = false;
                 } else if (param instanceof Throwable) {
                     // exceptions are not logged directly (unless they implement IToLog)
                     // they will get passed separate as exceptions to the base SLF4J API
                     e = (Throwable) param;
 
                     // also log the error explicitly as a separate key/value pair for easy parsing
-                    formatter.addKey(bld,KEY_ERROR_MESSAGE).addValue(bld,getCauseErrorMessage(e));
+                    formatter.addKeyValue(slfjLogger, bld,KEY_ERROR_MESSAGE, getCauseErrorMessage(e));
 
-                    isPreviousKey = false;
                 } else {
-
-                    // we only process the key/value pairs if no errors were encountered and we can rely
+                    // dynamic key/value pairs being passed in
+                   // we only process the key/value pairs if no errors were encountered and we can rely
                     // on the order being correct
-                    if (processKeyValues) {
+                    if (processKeyValues ) {
 
-                        // dynamic key/value pairs being passed in
-                        if (isPreviousKey) {
-                            formatter.addValue(bld,param);
-                            isPreviousKey = false;
-                        } else {
-                            // key must be a String
-                            if (handleKey(formatter,bld,param,null)) {
-                                isPreviousKey = true;
-                            } else {
+                        // move on to the next field automatically and assume it's the value
+                        i++;
+                        if (i < params.length) {
+                            if (!handleKeyValue(formatter,bld,param,params[i],null)) {
                                 // error encountered in the key, stop processing other key/value pairs
                                 processKeyValues = false;
                             }
@@ -149,19 +141,19 @@ class SLogger implements ILogger {
                 handleIToLog(formatter,bld,mandatory.get());
             }
 
-            formatter.end(bld);
+            String logEntry = formatter.end(slfjLogger, bld);
 
             // actual logging via SLF4J
-            log(level, bld.toString(),e);
+            log(level, logEntry, e);
 
         } catch (Exception ex) {
             /// should never happen, a logging library has no right to generate exceptions :-)
-            slfjLogger.error("UNEXPECTED LOGGER ERROR",ex);
+            slfjLogger.error("UNEXPECTED LOGGER ERROR: " + ex.getMessage(),ex);
         }
     }
 
     // handle IToLog implementations
-    private void handleIToLog(IFormatter encoder, StringBuilder bld, IToLog loggable) {
+    private void handleIToLog(IFormatter encoder, Object bld, IToLog loggable) {
         Object[] logParams = loggable.toLog();
         //sanity checks
         if (logParams == null) {
@@ -173,22 +165,19 @@ class SLogger implements ILogger {
         }
 
         for (int i = 0; i < logParams.length; i = i+2) {
-            if (handleKey(encoder, bld, logParams[i], loggable)) {
-                // key OK, so we can add value
-                encoder.addValue(bld, logParams[i + 1]);
-            }
+            handleKeyValue(encoder, bld, logParams[i], logParams[i + 1], loggable);
         }
     }
 
     // common logic for handling keys
     // returns true/false depending on whether it was successful or not
-    private boolean handleKey(IFormatter formatter, StringBuilder bld, Object param, IToLog source) {
+    private boolean handleKeyValue(IFormatter formatter, Object bld, Object keyObject, Object value, IToLog source) {
         // key must be a String
-        if (param != null && param instanceof String) {
+        if (keyObject != null && keyObject instanceof String) {
 
-            String key = (String)param;
+            String key = (String)keyObject;
             if (key.indexOf(SPACE) < 0) {
-                formatter.addKey(bld, (String) param);
+                formatter.addKeyValue(slfjLogger, bld, key, value);
             } else {
                 if (source == null) {
                     slfjLogger.error("Key with spaces was passed in: {}", key);
@@ -202,11 +191,11 @@ class SLogger implements ILogger {
 
             // a non-String key was passed
             if (source == null) {
-                slfjLogger.error("Non-String or null key was passed in: {} ({})", param,
-                        param != null ? param.getClass() : "null");
+                slfjLogger.error("Non-String or null key was passed in: {} ({})", keyObject,
+                        keyObject != null ? keyObject.getClass() : "null");
             } else {
-                slfjLogger.error("Non-String or null key was passed in from {}.toLog(): {} ({})", source.getClass(), param,
-                        param != null ? param.getClass() : "null");
+                slfjLogger.error("Non-String or null key was passed in from {}.toLog(): {} ({})", source.getClass(), keyObject,
+                        keyObject != null ? keyObject.getClass() : "null");
             }
             return false;
         }
@@ -264,6 +253,18 @@ class SLogger implements ILogger {
             return t.getMessage();
         } else {
             return getCauseErrorMessage(t.getCause());
+        }
+    }
+
+    // always returns "null" for null values, others are passed into the custom formatting logic
+    private String getFormattedValue(Object value) {
+        if (value == null) {
+            return StructLog4J.VALUE_NULL;
+        } else if (StructLog4J.isPrimitiveOrNumber(value.getClass()))  {
+            return value.toString();
+        } else {
+            // complex type, we can allow custom formatting
+            return StructLog4J.getValueFormatter().apply(value);
         }
     }
 }

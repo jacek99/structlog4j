@@ -1,1 +1,4 @@
 include "structlog4j-api"
+include 'structlog4j-json'
+include 'structlog4j-test'
+

@@ -1,4 +1,4 @@
-package com.github.structlog4j.samples;
+package com.github.structlog4j.test.samples;
 
 import com.github.structlog4j.IToLog;
 import lombok.Value;

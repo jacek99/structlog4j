@@ -1,9 +1,7 @@
-package com.github.structlog4j.samples;
+package com.github.structlog4j.test.samples;
 
 import com.github.structlog4j.IToLog;
 import lombok.Value;
-
-import java.security.Principal;
 
 /**
  * A Sample of an object that implements the IToLog

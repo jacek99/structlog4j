@@ -13,7 +13,10 @@ The artifacts for this library are published to the popular Bintray JCenter Mave
         jcenter()
     }
 
-    compile 'structlog4j:structlog4j-api:0.2.0'
+    compile 'structlog4j:structlog4j-api:0.3.0'
+
+    // Optional JSON formatter
+    compile 'structlog4j:structlog4j-json:0.3.0'
 
 ### Maven
 
@@ -27,7 +30,15 @@ The artifacts for this library are published to the popular Bintray JCenter Mave
     <dependency>
       <groupId>structlog4j</groupId>
       <artifactId>structlog4j-api</artifactId>
-      <version>0.2.0</version>
+      <version>0.3.0</version>
+      <type>pom</type>
+    </dependency>
+
+    <!-- Optional JSON formatter -->
+    <dependency>
+      <groupId>structlog4j</groupId>
+      <artifactId>structlog4j-json</artifactId>
+      <version>0.3.0</version>
       <type>pom</type>
     </dependency>
 
@@ -35,16 +46,28 @@ The artifacts for this library are published to the popular Bintray JCenter Mave
 
 Standard Java messages look something like this
 
-    Handled 4 events while processing the import batch processing
+    Processed 23 flight records for flight UA1234 for airline United
 
 This is human readable, but very difficult to parse by code in a log aggregation serivce, as every developer can enter any free form text they want, in any format.
 
 Instead, we can generate a message like this
 
-    Handled events service="Import Batch" numberOfEvents=4
+    Processed flight records recordCount=23 airlineCode=UA flightNumber=1234 airlineName=United
 
-This is very easy to parse, the message itself is just a plain description and all the context information is
-passed as separate key/value pairs (or in the future JSON, YAML, etc)
+or as JSON (if using our JSON formatter):
+
+    {
+        "message": "Processed flight records",
+        "recordCount": 23,
+        "airlineCode": "UA",
+        "flightNumber": "1234",
+        "airlineName": "United"
+    }
+
+This is very easy to parse, the message itself is just a plain description and all the context information is passed as separate key/value pairs (or in the future JSON, YAML, etc)
+
+When this type of log entry is forwarded to a log aggregation service (such as Splunk, Logstash, etc) it is trivial to parse it and extract context information from it.
+Thus, it is very easy to perform log analytics, which are criticial to many open applications (especially multi-tenant cloud applications).
 
 # Usage
 
@@ -144,15 +167,40 @@ then you just have to specify a mandatory context lambda:
 
 Now these mandatory key/value pairs will be logged automatically on **every** log entry, without the need to specify them manually.
 
+# Logging Formats
+
+## Key/Value Pairs
+
+By default we log in the standard key/value pair format, e.g.:
+
+    Starting processing user=johndoe@gmail.com tenantId=SOME_TENANT_ID
+
+No extra configuration is necesary.
+
+## JSON
+
+If you want all messages to be logged in JSON instead, e.g.
+
+        {
+            "message": "Started processing",
+            "user": johndoe@gmail.com,
+            "tenantId": "SOME_TENANT_ID"
+        }
+
+then you need to add the JSON formatter library as a dependency (where $version is the current library version):
+
+    compile 'structlog4j:structlog4j-json:$version'
+
+and then just execute the following code in the startup main() of your application:
+
+    import com.github.structlog4j.json.JsonFormatter;
+
+
+    StructLog4J.setFormatter(JsonFormatter.getInstance());
+
+That's it.
+
 # License
 
 MIT License.
-
-Use it at will, just don't sue me.
-
-## Dependencies
-
-The only dependency is the SLF4 API (MIT License as well).
-
-That's it. This library is geared towards easy integration into existing applications with strict license review process.
 

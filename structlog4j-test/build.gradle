@@ -1,0 +1,12 @@
+// common testing utilities across different modules
+
+dependencies {
+
+    // Lombok is KING
+    compileOnly "org.projectlombok:lombok:$lombokVersion"
+    compile project(":structlog4j-api")
+    compile project(":structlog4j-json")
+
+    compile group: 'junit', name: 'junit', version: '4.+'
+    compile "org.glassfish:javax.json:$jsonVersion"
+}

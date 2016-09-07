@@ -1,8 +1,10 @@
 dependencies {
 
+    compile project(":structlog4j-api")
+
     // Lombok is KING
     compileOnly "org.projectlombok:lombok:$lombokVersion"
-    compile "org.slf4j:slf4j-api:$slf4jVersion"
+    compile "org.glassfish:javax.json:$jsonVersion"
 
     testCompile project(":structlog4j-test")
     testCompileOnly "org.projectlombok:lombok:$lombokVersion"
