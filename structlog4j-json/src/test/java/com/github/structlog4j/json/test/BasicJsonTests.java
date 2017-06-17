@@ -16,6 +16,7 @@ import org.slf4j.impl.TestLogger;
 import java.util.LinkedList;
 
 import static com.github.structlog4j.test.TestUtils.*;
+import static com.github.structlog4j.json.test.JsonTestUtils.*;
 import static org.junit.Assert.*;
 
 /**
@@ -51,7 +52,7 @@ public class BasicJsonTests {
         log.error("This is an error","user","Jacek");
 
         assertEquals(entries.toString(),1,entries.size());
-        assertJsonMessage(entries,0);
+        JsonTestUtils.assertJsonMessage(entries,0);
         assertMessage(entries,0,Level.ERROR,"{\"message\":\"This is an error\",\"user\":\"Jacek\"}", false);
     }
 
@@ -60,7 +61,7 @@ public class BasicJsonTests {
         log.error("This is an error","user","Jacek Furmankiewicz");
 
         assertEquals(entries.toString(),1,entries.size());
-        assertJsonMessage(entries,0);
+        JsonTestUtils.assertJsonMessage(entries,0);
         assertMessage(entries,0, Level.ERROR,"{\"message\":\"This is an error\",\"user\":\"Jacek Furmankiewicz\"}",false);
     }
 
@@ -69,7 +70,7 @@ public class BasicJsonTests {
         log.error("This is an error","user",null);
 
         assertEquals(entries.toString(),1,entries.size());
-        assertJsonMessage(entries,0);
+        JsonTestUtils.assertJsonMessage(entries,0);
         assertMessage(entries,0,Level.ERROR,"{\"message\":\"This is an error\",\"user\":null}",false);
     }
 
@@ -78,7 +79,7 @@ public class BasicJsonTests {
         log.error("This is an error","user","John Doe","tenant","System","requestId","1234");
 
         assertEquals(entries.toString(),1,entries.size());
-        assertJsonMessage(entries,0);
+        JsonTestUtils.assertJsonMessage(entries,0);
         assertMessage(entries,0,Level.ERROR, "{\"message\":\"This is an error\",\"user\":\"John Doe\",\"tenant\":\"System\",\"requestId\":\"1234\"}",false);
     }
 
@@ -87,7 +88,7 @@ public class BasicJsonTests {
         log.error("This is an error",iToLog);
 
         assertEquals(entries.toString(),1,entries.size());
-        assertJsonMessage(entries,0);
+        JsonTestUtils.assertJsonMessage(entries,0);
         assertMessage(entries,0,Level.ERROR,"{\"message\":\"This is an error\",\"userName\":\"Test User\",\"tenantId\":\"TEST_TENANT\"}", false);
     }
 
@@ -100,7 +101,7 @@ public class BasicJsonTests {
         log.error("This is an error",iToLog,ctx);
 
         assertEquals(entries.toString(),1,entries.size());
-        assertJsonMessage(entries,0);
+        JsonTestUtils.assertJsonMessage(entries,0);
         assertMessage(entries, 0, Level.ERROR, "{\"message\":\"This is an error\",\"userName\":\"Test User\",\"tenantId\":\"TEST_TENANT\",\"entityName\":\"Country\",\"entityId\":\"CA\"}",false);
     }
 
@@ -111,7 +112,7 @@ public class BasicJsonTests {
         log.error("This is an error",iToLog,ctx,"key1",1L,"key2","Value 2");
 
         assertEquals(entries.toString(),1,entries.size());
-        assertJsonMessage(entries,0);
+        JsonTestUtils.assertJsonMessage(entries,0);
         assertMessage(entries,0,Level.ERROR,
                 "{\"message\":\"This is an error\",\"userName\":\"Test User\",\"tenantId\":\"TEST_TENANT\",\"entityName\":\"Country\",\"entityId\":\"CA\",\"key1\":1,\"key2\":\"Value 2\"}",
                 false);
@@ -126,7 +127,7 @@ public class BasicJsonTests {
         log.error("This is an error",t);
 
         assertEquals(entries.toString(),1,entries.size());
-        assertJsonMessage(entries,0);
+        JsonTestUtils.assertJsonMessage(entries,0);
         assertMessage(entries,0,Level.ERROR,"{\"message\":\"This is an error\",\"errorMessage\":\"Major exception\"}",true);
     }
 
@@ -142,7 +143,7 @@ public class BasicJsonTests {
         log.error("This is an error",t);
 
         assertEquals(entries.toString(),1,entries.size());
-        assertJsonMessage(entries,0);
+        JsonTestUtils.assertJsonMessage(entries,0);
         assertMessage(entries,0,Level.ERROR,"{\"message\":\"This is an error\",\"errorMessage\":\"This is the root cause of the error\"}",true);
     }
 
@@ -155,7 +156,7 @@ public class BasicJsonTests {
         log.error("This is an error","key1",1L,"key2","Value 2",t);
 
         assertEquals(entries.toString(),1,entries.size());
-        assertJsonMessage(entries,0);
+        JsonTestUtils.assertJsonMessage(entries,0);
         assertMessage(entries,0,Level.ERROR,"{\"message\":\"This is an error\",\"key1\":1,\"key2\":\"Value 2\",\"errorMessage\":\"Major exception\"}",
                 true);
     }
@@ -179,15 +180,15 @@ public class BasicJsonTests {
         }
 
         // first
-        assertJsonMessage(entries,0);
+        JsonTestUtils.assertJsonMessage(entries,0);
         assertEquals(entries.toString(),"{\"message\":\"This is an error\",\"userName\":\"Test User\",\"tenantId\":\"TEST_TENANT\",\"entityName\":\"Country\",\"entityId\":\"CA\",\"key1\":1,\"key2\":\"Value 2\",\"errorMessage\":\"This is the root cause of the error\"}",
                 entries.get(0).getMessage());
         // second
-        assertJsonMessage(entries,1);
+        JsonTestUtils.assertJsonMessage(entries,1);
         assertEquals(entries.toString(),"{\"message\":\"This is an error\",\"errorMessage\":\"This is the root cause of the error\",\"userName\":\"Test User\",\"tenantId\":\"TEST_TENANT\",\"entityName\":\"Country\",\"entityId\":\"CA\",\"key1\":1,\"key2\":\"Value 2\"}",
                 entries.get(1).getMessage());
         // third
-        assertJsonMessage(entries,2);
+        JsonTestUtils.assertJsonMessage(entries,2);
         assertEquals(entries.toString(),"{\"message\":\"This is an error\",\"userName\":\"Test User\",\"tenantId\":\"TEST_TENANT\",\"key1\":1,\"errorMessage\":\"This is the root cause of the error\",\"entityName\":\"Country\",\"entityId\":\"CA\",\"key2\":\"Value 2\"}",
                 entries.get(2).getMessage());
     }
@@ -202,7 +203,7 @@ public class BasicJsonTests {
         log.trace("Trace",iToLog);
 
         assertEquals(entries.toString(),5,entries.size());
-        assertJsonMessages(entries);
+        JsonTestUtils.assertJsonMessages(entries);
 
         assertEquals(entries.toString(),Level.ERROR,entries.get(0).getLevel());
         assertEquals(entries.toString(),"{\"message\":\"Error\",\"userName\":\"Test User\",\"tenantId\":\"TEST_TENANT\"}",entries.get(0).getMessage());
@@ -237,7 +238,7 @@ public class BasicJsonTests {
         log.error("This is an error",iToLog,"key1",1L,t,ctx,"key2","Value 2");
 
         assertEquals(entries.toString(),3,entries.size());
-        assertJsonMessages(entries);
+        JsonTestUtils.assertJsonMessages(entries);
 
         for(LogEntry entry : entries) {
             assertEquals(entries.toString(), Level.ERROR,entry.getLevel());

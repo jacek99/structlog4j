@@ -1,0 +1,11 @@
+dependencies {
+
+    compile project(":structlog4j-api")
+
+    // Lombok is KING
+    compileOnly "org.projectlombok:lombok:$lombokVersion"
+    compile "org.yaml:snakeyaml:$yamlVersion"
+
+    testCompile project(":structlog4j-test")
+    testCompileOnly "org.projectlombok:lombok:$lombokVersion"
+}

@@ -1,4 +1,4 @@
-# StructLog4J
+![Structlog4J](img/logo.png)
 
 Structured logging Java, on top of the SLF4J API.
 Designed to generate easily parsable log messages for consumption in services such as LogStash, Splunk, ElasticSearch, etc.
@@ -13,10 +13,13 @@ The artifacts for this library are published to the popular Bintray JCenter Mave
         jcenter()
     }
 
-    compile 'structlog4j:structlog4j-api:0.3.0'
+    compile 'structlog4j:structlog4j-api:1.0.0'
 
     // Optional JSON formatter
-    compile 'structlog4j:structlog4j-json:0.3.0'
+    compile 'structlog4j:structlog4j-json:1.0.0'
+
+    // Optional YAML formatter
+    compile 'structlog4j:structlog4j-json:1.0.0'
 
 ### Maven
 
@@ -30,7 +33,7 @@ The artifacts for this library are published to the popular Bintray JCenter Mave
     <dependency>
       <groupId>structlog4j</groupId>
       <artifactId>structlog4j-api</artifactId>
-      <version>0.3.0</version>
+      <version>1.0.0</version>
       <type>pom</type>
     </dependency>
 
@@ -38,7 +41,15 @@ The artifacts for this library are published to the popular Bintray JCenter Mave
     <dependency>
       <groupId>structlog4j</groupId>
       <artifactId>structlog4j-json</artifactId>
-      <version>0.3.0</version>
+      <version>1.0.0</version>
+      <type>pom</type>
+    </dependency>
+
+    <!-- Optional YAML formatter -->
+    <dependency>
+      <groupId>structlog4j</groupId>
+      <artifactId>structlog4j-yaml</artifactId>
+      <version>1.0.0</version>
       <type>pom</type>
     </dependency>
 
@@ -63,8 +74,17 @@ or as JSON (if using our JSON formatter):
         "flightNumber": "1234",
         "airlineName": "United"
     }
+    
+or in YAML (if using our YAML formatter):
 
-This is very easy to parse, the message itself is just a plain description and all the context information is passed as separate key/value pairs.
+    message: Processed flight records
+    recordCount: 23
+    airlineCode: UA
+    flightNumber: 1234
+    airlineName: United
+    
+This is very easy to parse, the message itself is just a plain description and all the context information is 
+passed as separate key/value pairs.
 
 When this type of log entry is forwarded to a log aggregation service (such as Splunk, Logstash, etc) it is trivial to parse it and extract context information from it.
 Thus, it is very easy to perform log analytics, which are criticial to many open applications (especially multi-tenant cloud applications).
@@ -195,8 +215,27 @@ and then just execute the following code in the startup main() of your applicati
 
     import com.github.structlog4j.json.JsonFormatter;
 
-
     StructLog4J.setFormatter(JsonFormatter.getInstance());
+
+That's it.
+
+## YAML
+
+If you want all messages to be logged in YAML instead, e.g.
+
+    message: Started processing
+    user: johndoe@gmail.com
+    tenantId: SOME_TENANT_ID
+
+then you need to add the YAML formatter library as a dependency (where $version is the current library version):
+
+    compile 'structlog4j:structlog4j-yaml:$version'
+
+and then just execute the following code in the startup main() of your application:
+
+    import com.github.structlog4j.yaml.YamlFormatter;
+
+    StructLog4J.setFormatter(YamlFormatter.getInstance());
 
 That's it.
 

@@ -1,30 +1,20 @@
 package com.github.structlog4j.json;
 
 import com.github.structlog4j.IFormatter;
-import com.github.structlog4j.StructLog4J;
 import org.slf4j.Logger;
 
 import javax.json.Json;
 import javax.json.JsonObjectBuilder;
-import javax.json.JsonValue;
 import javax.json.JsonWriter;
-import java.io.ByteArrayOutputStream;
 import java.io.StringWriter;
 
 /**
- * Basic JSON formatter. Formats using low-level String building, to avoid pulling in any of the large JSON libraries
- * with their many dependencies
+ * Basic JSON formatter. Formats using Glassfish JSON library as it has minimal
+ * dependencies
  *
  * @author Jacek Furmankiewicz
  */
 public class JsonFormatter implements IFormatter<JsonObjectBuilder> {
-
-    private static final String BEGIN="{";
-    private static final String END="}";
-    private static final String QUOTES = "\"";
-    private static final String COMMA = ",";
-    private static final String QUOTES_ESCAPED = "\\\"";
-    private static final String EQUAL=":";
 
     private static final String FIELD_MESSAGE = "message";
     private static final String FIELD_MESSAGE_2 = "message2";
