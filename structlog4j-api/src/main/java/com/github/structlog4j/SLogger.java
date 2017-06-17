@@ -137,9 +137,7 @@ public class SLogger implements ILogger {
 
             // add mandatory context, if specified
             Optional<IToLog> mandatory = StructLog4J.getMandatoryContextSupplier();
-            if (mandatory.isPresent()) {
-                handleIToLog(formatter,bld,mandatory.get());
-            }
+            mandatory.ifPresent(iToLog -> handleIToLog(formatter, bld, iToLog));
 
             String logEntry = formatter.end(slfjLogger, bld);
 
@@ -256,15 +254,4 @@ public class SLogger implements ILogger {
         }
     }
 
-    // always returns "null" for null values, others are passed into the custom formatting logic
-    private String getFormattedValue(Object value) {
-        if (value == null) {
-            return StructLog4J.VALUE_NULL;
-        } else if (StructLog4J.isPrimitiveOrNumber(value.getClass()))  {
-            return value.toString();
-        } else {
-            // complex type, we can allow custom formatting
-            return StructLog4J.getValueFormatter().apply(value);
-        }
-    }
 }
