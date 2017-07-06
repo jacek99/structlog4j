@@ -19,7 +19,7 @@ The artifacts for this library are published to the popular Bintray JCenter Mave
     compile 'structlog4j:structlog4j-json:1.0.0'
 
     // Optional YAML formatter
-    compile 'structlog4j:structlog4j-json:1.0.0'
+    compile 'structlog4j:structlog4j-yaml:1.0.0'
 
 ### Maven
 

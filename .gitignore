@@ -12,6 +12,7 @@
 hs_err_pid*
 
 # Build tools an IDEs
+*.iml
 .gradle/
 .idea/
 classes/
