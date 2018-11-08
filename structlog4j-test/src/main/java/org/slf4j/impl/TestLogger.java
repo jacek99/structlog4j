@@ -225,7 +225,9 @@ public class TestLogger implements Logger {
 
     @Override
     public void warn(String format, Object arg1, Object arg2) {
-        throw new RuntimeException("Not used");
+        // used in internal warnings
+        format = format.replace("{}","%s");
+        entries.add(new LogEntry(Level.WARN,String.format(format,arg1,arg2), Optional.empty()));
     }
 
     @Override
