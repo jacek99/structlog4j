@@ -48,6 +48,17 @@ public class BasicYamlTests {
     }
 
     @Test
+    public void changeMessageStringTest() {
+        // create a separate formatter since we're changing the internals
+        StructLog4J.setFormatter((new YamlFormatter()).setMessageName("foo"));
+        log.error("This is an error");
+
+        assertEquals(entries.toString(),1,entries.size());
+        assertYamlMessage(entries,0);
+        assertMessage(entries,0, Level.ERROR,"foo: This is an error",false);
+    }
+
+    @Test
     public void singleKeyValueTest() {
         log.error("This is an error","user","Jacek");
 
