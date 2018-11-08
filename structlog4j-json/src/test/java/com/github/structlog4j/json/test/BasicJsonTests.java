@@ -48,6 +48,17 @@ public class BasicJsonTests {
     }
 
     @Test
+    public void changeMessageStringTest() {
+        // create a separate formatter since we're changing the internals
+        StructLog4J.setFormatter((new JsonFormatter()).setMessageName("foo"));
+        log.error("This is an error");
+
+        assertEquals(entries.toString(),1,entries.size());
+        assertJsonMessage(entries,0);
+        assertMessage(entries,0, Level.ERROR,"{\"foo\":\"This is an error\"}",false);
+    }
+
+    @Test
     public void singleKeyValueTest() {
         log.error("This is an error","user","Jacek");
 

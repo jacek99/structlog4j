@@ -6,7 +6,6 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.Yaml;
-import org.yaml.snakeyaml.nodes.Tag;
 
 /**
  * Basic YAML formatter using the standard SnakeYaml library
@@ -27,11 +26,16 @@ public class YamlFormatter implements IFormatter<Map<String,String>> {
         }
     };
 
-    private static final String FIELD_MESSAGE = "message";
+    private String fieldMessage = "message";
     private static final String FIELD_MESSAGE_2 = "message2";
 
     private static final YamlFormatter INSTANCE = new YamlFormatter();
     public static YamlFormatter getInstance() {return INSTANCE;}
+
+    public IFormatter<Map<String,String>> setMessageName(String field) {
+        fieldMessage = field;
+        return this;
+    }
 
     @Override
     public final Map<String,String> start(Logger log) {
@@ -40,16 +44,16 @@ public class YamlFormatter implements IFormatter<Map<String,String>> {
 
     @Override
     public final IFormatter<Map<String,String>> addMessage(Logger log, Map<String,String> bld, String message) {
-        bld.put(FIELD_MESSAGE,message);
+        bld.put(fieldMessage,message);
         return this;
     }
 
     @Override
     public final IFormatter<Map<String,String>> addKeyValue(Logger log, Map<String,String> bld, String key, Object value) {
         // avoid overriding the "message" field
-        if (key.equals(FIELD_MESSAGE)) {
+        if (key.equals(fieldMessage)) {
             key = FIELD_MESSAGE_2;
-            log.warn("Key 'message' renamed to 'message2' in order to avoid overriding default YAML message field. Please correct in your code.");
+            log.warn("Key '{}' renamed to '{}' in order to avoid overriding default YAML message field. Please correct in your code.",fieldMessage,FIELD_MESSAGE_2);
         }
 
         bld.put(key, String.valueOf(value));

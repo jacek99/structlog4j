@@ -16,11 +16,16 @@ import java.io.StringWriter;
  */
 public class JsonFormatter implements IFormatter<JsonObjectBuilder> {
 
-    private static final String FIELD_MESSAGE = "message";
+    private String fieldMessage = "message";
     private static final String FIELD_MESSAGE_2 = "message2";
 
     private static final JsonFormatter INSTANCE = new JsonFormatter();
     public static JsonFormatter getInstance() {return INSTANCE;}
+
+    public IFormatter<JsonObjectBuilder> setMessageName(String field) {
+        fieldMessage = field;
+        return this;
+    }
 
     @Override
     public final JsonObjectBuilder start(Logger log) {
@@ -29,16 +34,16 @@ public class JsonFormatter implements IFormatter<JsonObjectBuilder> {
 
     @Override
     public final IFormatter<JsonObjectBuilder> addMessage(Logger log, JsonObjectBuilder bld, String message) {
-        bld.add(FIELD_MESSAGE,message);
+        bld.add(fieldMessage,message);
         return this;
     }
 
     @Override
     public final IFormatter<JsonObjectBuilder> addKeyValue(Logger log, JsonObjectBuilder bld, String key, Object value) {
-        // avoid overriding the "message" field
-        if (key.equals(FIELD_MESSAGE)) {
+        // avoid overriding the "fieldMessage" field
+        if (key.equals(fieldMessage)) {
             key = FIELD_MESSAGE_2;
-            log.warn("Key 'message' renamed to 'message2' in order to avoid overriding default JSON message field. Please correct in your code.");
+            log.warn("Key '{}' renamed to '{}' in order to avoid overriding default JSON message field. Please correct in your code.",fieldMessage,FIELD_MESSAGE_2);
         }
 
         // different methods per type
