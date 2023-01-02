@@ -1,101 +1,128 @@
+//buildscript {
+//    repositories {
+//        gradlePluginPortal()
+//        mavenCentral()
+//    }
+//}
+
+plugins {
+    id 'java-library'
+    id "com.github.spotbugs" version "5.0.13" apply false
+    id "com.diffplug.spotless" version "6.12.1" apply false
+}
+
 import java.text.SimpleDateFormat
 def globalVersion = new Version(version)
-
-task wrapper(type: Wrapper) {
-    gradleVersion = '4.0'
-}
-
-buildscript {
-    repositories {
-        jcenter()
-    }
-    dependencies {
-        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.1'
-    }
-}
 
 // configures all sub-projects consistently
 subprojects {
 
-    apply plugin: 'java'
-    apply plugin: 'findbugs'
+    apply plugin: 'java-library'
+    //apply plugin: 'com.github.spotbugs'
+    apply plugin: 'com.diffplug.spotless'
+
+    java {
+        toolchain {
+            sourceCompatibility = JavaLanguageVersion.of(11)
+            targetCompatibility = JavaLanguageVersion.of(11)
+        }
+    }
 
     version = globalVersion
     status = version.status
 
-    sourceCompatibility = '1.8'
-    targetCompatibility = '1.8'
-
     repositories {
         mavenCentral()
-        jcenter()
     }
 
-    // code quality
-    findbugs {
-        effort = "max"
-        reportLevel = "medium"
-        includeFilter = file("$rootProject.projectDir/findBugsIncludeFilter.xml")
-        excludeFilter = file("$rootProject.projectDir/findBugsExcludeFilter.xml")
+    test {
+        useJUnitPlatform()
     }
 
-    tasks.withType(FindBugs) {
-        reports {
-            xml.enabled false
-            html.enabled true
+    // common dependencies across all projects
+    dependencies {
+        implementation "org.projectlombok:lombok:$lombokVersion"
+        annotationProcessor "org.projectlombok:lombok:$lombokVersion"
+
+        testImplementation "org.projectlombok:lombok:$lombokVersion"
+        testAnnotationProcessor "org.projectlombok:lombok:$lombokVersion"
+        testImplementation "org.junit.jupiter:junit-jupiter:${junitVersion}"
+        testImplementation "org.assertj:assertj-core:${assertJVersion}"
+    }
+
+    spotless {
+        java {
+            googleJavaFormat()
+            formatAnnotations()
         }
     }
+    check.dependsOn spotlessApply
+
+            // code quality
+//    findbugs {
+//        effort = "max"
+//        reportLevel = "medium"
+//        includeFilter = file("$rootProject.projectDir/findBugsIncludeFilter.xml")
+//        excludeFilter = file("$rootProject.projectDir/findBugsExcludeFilter.xml")
+//    }
+//
+//    tasks.withType(FindBugs) {
+//        reports {
+//            xml.enabled false
+//            html.enabled true
+//        }
+//    }
 
     check.dependsOn test
     build.dependsOn check
+//
+//    // artifacts
+//    task sourceJar(type: Jar) {
+//        from sourceSets.main.allSource
+//        classifier = 'sources'
+//    }
+//    task javadocJar(type: Jar, dependsOn: javadoc) {
+//        classifier = 'javadoc'
+//        from javadoc.destinationDir
+//    }
 
-    // artifacts
-    task sourceJar(type: Jar) {
-        from sourceSets.main.allSource
-        classifier = 'sources'
-    }
-    task javadocJar(type: Jar, dependsOn: javadoc) {
-        classifier = 'javadoc'
-        from javadoc.destinationDir
-    }
+//    // publishing artifacts to Bintray JCenter
+//    configurations {
+//        published
+//    }
+//
+//    // upload to JCenter
+//    artifacts {
+//        published sourceJar
+//        published javadocJar
+//    }
 
-    // publishing artifacts to Bintray JCenter
-    configurations {
-        published
-    }
+//    apply plugin: 'com.jfrog.bintray'
+//    apply plugin: 'maven'
+//
+//    ext.publish = true
+//    bintray {
+//        // grab credentials from environment variables
+//        user = "$System.env.BINTRAY_USER"
+//        key = "$System.env.BINTRAY_API_KEY"
+//
+//        configurations = ['published', 'archives']
+//        dryRun = false //Whether to run this as dry-run, without deploying
+//        publish = true //If version should be auto published after an upload
+//        pkg {
+//            repo = 'structlog4j'
+//            name = project.name
+//            desc = 'Structured logging for Java on top of the SLF4jAPI'
+//            websiteUrl = 'https://github.com/jacek99/structlog4j'
+//            issueTrackerUrl = 'https://github.com/jacek99/structlog4j'
+//            vcsUrl = 'https://github.com/jacek99/structlog4j'
+//            licenses = ['MIT']
+//            publicDownloadNumbers = true
+//        }
+//    }
 
-    // upload to JCenter
-    artifacts {
-        published sourceJar
-        published javadocJar
-    }
-
-    apply plugin: 'com.jfrog.bintray'
-    apply plugin: 'maven'
-
-    ext.publish = true
-    bintray {
-        // grab credentials from environment variables
-        user = "$System.env.BINTRAY_USER"
-        key = "$System.env.BINTRAY_API_KEY"
-
-        configurations = ['published', 'archives']
-        dryRun = false //Whether to run this as dry-run, without deploying
-        publish = true //If version should be auto published after an upload
-        pkg {
-            repo = 'structlog4j'
-            name = project.name
-            desc = 'Structured logging for Java on top of the SLF4jAPI'
-            websiteUrl = 'https://github.com/jacek99/structlog4j'
-            issueTrackerUrl = 'https://github.com/jacek99/structlog4j'
-            vcsUrl = 'https://github.com/jacek99/structlog4j'
-            licenses = ['MIT']
-            publicDownloadNumbers = true
-        }
-    }
-
-    // ensure code quality for published artifacts
-    install.dependsOn check
+//    // ensure code quality for published artifacts
+//    install.dependsOn check
 }
 
 class Version {

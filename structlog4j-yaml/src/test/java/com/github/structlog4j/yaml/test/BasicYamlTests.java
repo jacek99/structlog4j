@@ -1,5 +1,10 @@
 package com.github.structlog4j.yaml.test;
 
+import static com.github.structlog4j.test.TestUtils.*;
+import static com.github.structlog4j.yaml.test.YamlTestUtils.*;
+import static org.assertj.core.api.Assertions.*;
+import static org.slf4j.event.Level.ERROR;
+
 import com.github.structlog4j.SLogger;
 import com.github.structlog4j.SLoggerFactory;
 import com.github.structlog4j.StructLog4J;
@@ -8,337 +13,324 @@ import com.github.structlog4j.test.samples.BusinessObjectContext;
 import com.github.structlog4j.test.samples.TestSecurityContext;
 import com.github.structlog4j.yaml.YamlFormatter;
 import java.util.LinkedList;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.slf4j.event.Level;
 import org.slf4j.impl.LogEntry;
 import org.slf4j.impl.TestLogger;
 
-import static com.github.structlog4j.yaml.test.YamlTestUtils.*;
-import static com.github.structlog4j.test.TestUtils.assertMessage;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
-/**
- * JSON Formatter tests
- */
+/** JSON Formatter tests */
 public class BasicYamlTests {
 
-    private SLogger log;
-    private LinkedList<LogEntry> entries;
-    private TestSecurityContext iToLog = new TestSecurityContext("Test User","TEST_TENANT");
+  private SLogger log;
+  private LinkedList<LogEntry> entries;
+  private TestSecurityContext iToLog = new TestSecurityContext("Test User", "TEST_TENANT");
 
-    @Before
-    public void setup() {
-        TestUtils.initForTesting();
-        StructLog4J.setFormatter(YamlFormatter.getInstance());
+  @BeforeEach
+  public void setup() {
+    TestUtils.initForTesting();
+    StructLog4J.setFormatter(YamlFormatter.getInstance());
 
-        log = (SLogger) SLoggerFactory.getLogger(BasicYamlTests.class);
-        entries = ((TestLogger)log.getSlfjLogger()).getEntries();
+    log = (SLogger) SLoggerFactory.getLogger(BasicYamlTests.class);
+    entries = ((TestLogger) log.getSlfjLogger()).getEntries();
+  }
 
-    }
+  @Test
+  public void basicTest() {
+    log.error("This is an error");
 
-    @Test
-    public void basicTest() {
-        log.error("This is an error");
+    assertThat(entries.size()).describedAs(entries.toString()).isEqualTo(1);
+    assertYamlMessage(entries, 0);
+    assertMessage(entries, 0, ERROR, "message: This is an error", false);
+  }
 
-        assertEquals(entries.toString(),1,entries.size());
-        assertYamlMessage(entries,0);
-        assertMessage(entries,0, Level.ERROR,"message: This is an error",false);
-    }
+  @Test
+  public void singleKeyValueTest() {
+    log.error("This is an error", "user", "Jacek");
 
-    @Test
-    public void singleKeyValueTest() {
-        log.error("This is an error","user","Jacek");
+    assertYamlMessage(entries, 0);
+    assertMessage(entries, 0, ERROR, "message: This is an error\n" + "user: Jacek", false);
+  }
 
-        assertEquals(entries.toString(),1,entries.size());
-        assertYamlMessage(entries,0);
-        assertMessage(entries,0,Level.ERROR,"message: This is an error\n" +
-                "user: Jacek", false);
-    }
+  @Test
+  public void singleKeyValueWithSpaceTest() {
+    log.error("This is an error", "user", "Jacek Furmankiewicz");
 
-    @Test
-    public void singleKeyValueWithSpaceTest() {
-        log.error("This is an error","user","Jacek Furmankiewicz");
+    assertThat(entries.size()).describedAs(entries.toString()).isEqualTo(1);
+    assertYamlMessage(entries, 0);
+    assertMessage(
+        entries, 0, ERROR, "message: This is an error\n" + "user: Jacek Furmankiewicz", false);
+  }
 
-        assertEquals(entries.toString(),1,entries.size());
-        assertYamlMessage(entries,0);
-        assertMessage(entries,0, Level.ERROR,"message: This is an error\n" +
-                "user: Jacek Furmankiewicz",false);
-    }
+  @Test
+  public void singleKeyNullValueTest() {
+    log.error("This is an error", "user", null);
 
-    @Test
-    public void singleKeyNullValueTest() {
-        log.error("This is an error","user",null);
+    assertThat(entries.size()).describedAs(entries.toString()).isEqualTo(1);
+    assertYamlMessage(entries, 0);
+    assertMessage(entries, 0, ERROR, "message: This is an error\n" + "user: 'null'", false);
+  }
 
-        assertEquals(entries.toString(),1,entries.size());
-        assertYamlMessage(entries,0);
-        assertMessage(entries,0,Level.ERROR,"message: This is an error\n" +
-                "user: 'null'",false);
-    }
+  @Test
+  public void multipleKeyValuePairsTest() {
+    log.error("This is an error", "user", "John Doe", "tenant", "System", "requestId", "1234");
 
-    @Test
-    public void multipleKeyValuePairsTest() {
-        log.error("This is an error","user","John Doe","tenant","System","requestId","1234");
+    assertThat(entries.size()).describedAs(entries.toString()).isEqualTo(1);
+    assertYamlMessage(entries, 0);
+    assertMessage(
+        entries,
+        0,
+        ERROR,
+        "requestId: '1234'\n"
+            + "message: This is an error\n"
+            + "user: John Doe\n"
+            + "tenant: System",
+        false);
+  }
 
-        assertEquals(entries.toString(),1,entries.size());
-        assertYamlMessage(entries,0);
-        assertMessage(entries,0,Level.ERROR, "requestId: '1234'\n" +
-                "message: This is an error\n" +
-                "user: John Doe\n" +
-                "tenant: System",false);
-    }
+  @Test
+  public void iToLogSingleTest() {
+    log.error("This is an error", iToLog);
 
-    @Test
-    public void iToLogSingleTest() {
-        log.error("This is an error",iToLog);
+    assertThat(entries.size()).describedAs(entries.toString()).isEqualTo(1);
+    assertYamlMessage(entries, 0);
+    assertMessage(
+        entries,
+        0,
+        ERROR,
+        "tenantId: TEST_TENANT\n" + "message: This is an error\n" + "userName: Test User",
+        false);
+  }
 
-        assertEquals(entries.toString(),1,entries.size());
-        assertYamlMessage(entries,0);
-        assertMessage(entries,0,Level.ERROR,"tenantId: TEST_TENANT\n" +
-                "message: This is an error\n" +
-                "userName: Test User", false);
-    }
+  @Test
+  public void iToLogMultipleTest() {
 
+    BusinessObjectContext ctx = new BusinessObjectContext("Country", "CA");
 
-    @Test
-    public void iToLogMultipleTest() {
+    log.error("This is an error", iToLog, ctx);
 
-        BusinessObjectContext ctx = new BusinessObjectContext("Country","CA");
+    assertThat(entries.size()).describedAs(entries.toString()).isEqualTo(1);
+    assertYamlMessage(entries, 0);
+    assertMessage(
+        entries,
+        0,
+        ERROR,
+        "entityName: Country\n"
+            + "tenantId: TEST_TENANT\n"
+            + "entityId: CA\n"
+            + "message: This is an error\n"
+            + "userName: Test User",
+        false);
+  }
 
-        log.error("This is an error",iToLog,ctx);
+  @Test
+  public void mixedKeyValueIToLogTest() {
+    BusinessObjectContext ctx = new BusinessObjectContext("Country", "CA");
 
-        assertEquals(entries.toString(),1,entries.size());
-        assertYamlMessage(entries,0);
-        assertMessage(entries, 0, Level.ERROR, "entityName: Country\n" +
-                "tenantId: TEST_TENANT\n" +
-                "entityId: CA\n" +
-                "message: This is an error\n" +
-                "userName: Test User",false);
-    }
+    log.error("This is an error", iToLog, ctx, "key1", 1L, "key2", "Value 2");
 
-    @Test
-    public void mixedKeyValueIToLogTest() {
-        BusinessObjectContext ctx = new BusinessObjectContext("Country","CA");
+    assertThat(entries.size()).describedAs(entries.toString()).isEqualTo(1);
+    assertYamlMessage(entries, 0);
+    assertMessage(
+        entries,
+        0,
+        ERROR,
+        "key1: '1'\n"
+            + "key2: Value 2\n"
+            + "entityName: Country\n"
+            + "tenantId: TEST_TENANT\n"
+            + "entityId: CA\n"
+            + "message: This is an error\n"
+            + "userName: Test User",
+        false);
+  }
 
-        log.error("This is an error",iToLog,ctx,"key1",1L,"key2","Value 2");
+  @Test
+  public void exceptionTest() {
 
-        assertEquals(entries.toString(),1,entries.size());
-        assertYamlMessage(entries,0);
-        assertMessage(entries,0,Level.ERROR,
-                "key1: '1'\n" +
-                        "key2: Value 2\n" +
-                        "entityName: Country\n" +
-                        "tenantId: TEST_TENANT\n" +
-                        "entityId: CA\n" +
-                        "message: This is an error\n" +
-                        "userName: Test User",
-                false);
+    Throwable t = new RuntimeException("Major exception");
 
-    }
+    log.error("This is an error", t);
 
-    @Test
-    public void exceptionTest() {
+    assertThat(entries.size()).describedAs(entries.toString()).isEqualTo(1);
+    assertYamlMessage(entries, 0);
+    assertMessage(
+        entries, 0, ERROR, "errorMessage: Major exception\n" + "message: This is an error", true);
+  }
 
-        Throwable t = new RuntimeException("Major exception");
+  /**
+   * Ensures the root cause of the exception gets logged as the default message, not the final
+   * re-thrown exception
+   */
+  @Test
+  public void exceptionRootCauseTest() {
 
-        log.error("This is an error",t);
+    Throwable rootCause = new RuntimeException("This is the root cause of the error");
+    Throwable t = new RuntimeException("Major exception", rootCause);
 
-        assertEquals(entries.toString(),1,entries.size());
-        assertYamlMessage(entries,0);
-        assertMessage(entries,0,Level.ERROR,"errorMessage: Major exception\n" +
-                "message: This is an error",true);
-    }
+    log.error("This is an error", t);
 
-    /**
-     * Ensures the root cause of the exception gets logged as the default message, not the final re-thrown exception
-     */
-    @Test
-    public void exceptionRootCauseTest() {
+    assertThat(entries.size()).describedAs(entries.toString()).isEqualTo(1);
+    assertYamlMessage(entries, 0);
+    assertMessage(
+        entries,
+        0,
+        ERROR,
+        "errorMessage: This is the root cause of the error\n" + "message: This is an error",
+        true);
+  }
 
-        Throwable rootCause = new RuntimeException("This is the root cause of the error");
-        Throwable t = new RuntimeException("Major exception",rootCause);
+  @Test
+  public void exceptionWithKeyValueTest() {
 
-        log.error("This is an error",t);
+    Throwable t = new RuntimeException("Major exception");
 
-        assertEquals(entries.toString(),1,entries.size());
-        assertYamlMessage(entries,0);
-        assertMessage(entries,0,Level.ERROR,"errorMessage: This is the root cause of the error\n" +
-                "message: This is an error",true);
-    }
+    log.error("This is an error", "key1", 1L, "key2", "Value 2", t);
 
+    assertThat(entries.size()).describedAs(entries.toString()).isEqualTo(1);
+    assertYamlMessage(entries, 0);
+    assertMessage(
+        entries,
+        0,
+        ERROR,
+        "key1: '1'\n"
+            + "key2: Value 2\n"
+            + "errorMessage: Major exception\n"
+            + "message: This is an error",
+        true);
+  }
 
-    @Test
-    public void exceptionWithKeyValueTest() {
+  @Test
+  public void kitchenSinkTest() {
 
-        Throwable t = new RuntimeException("Major exception");
+    BusinessObjectContext ctx = new BusinessObjectContext("Country", "CA");
+    Throwable rootCause = new RuntimeException("This is the root cause of the error");
+    Throwable t = new RuntimeException("Major exception", rootCause);
 
-        log.error("This is an error","key1",1L,"key2","Value 2",t);
+    // mix and match in different order to ensure it all works
+    log.error("This is an error", iToLog, ctx, "key1", 1L, "key2", "Value 2", t);
+    log.error("This is an error", t, iToLog, ctx, "key1", 1L, "key2", "Value 2");
+    log.error("This is an error", iToLog, "key1", 1L, t, ctx, "key2", "Value 2");
 
-        assertEquals(entries.toString(),1,entries.size());
-        assertYamlMessage(entries,0);
-        assertMessage(entries,0,Level.ERROR,"key1: '1'\n" +
-                        "key2: Value 2\n" +
-                        "errorMessage: Major exception\n" +
-                        "message: This is an error",
-                true);
-    }
+    assertEntryLevels(entries, ERROR, ERROR, ERROR);
 
-    @Test
-    public void kitchenSinkTest() {
+    // first
+    assertYamlMessage(entries, 0);
+    assertThat(entries.get(0).getMessage())
+        .describedAs(entries.toString())
+        .isEqualTo(
+            "key1: '1'\n"
+                + "key2: Value 2\n"
+                + "entityName: Country\n"
+                + "tenantId: TEST_TENANT\n"
+                + "errorMessage: This is the root cause of the error\n"
+                + "entityId: CA\n"
+                + "message: This is an error\n"
+                + "userName: Test User");
+    // second
+    assertYamlMessage(entries, 1);
+    assertThat(entries.get(1).getMessage())
+        .describedAs(entries.toString())
+        .isEqualTo(
+            "key1: '1'\n"
+                + "key2: Value 2\n"
+                + "entityName: Country\n"
+                + "errorMessage: This is the root cause of the error\n"
+                + "tenantId: TEST_TENANT\n"
+                + "entityId: CA\n"
+                + "message: This is an error\n"
+                + "userName: Test User");
+    // third
+    assertYamlMessage(entries, 2);
+    assertThat(entries.get(2).getMessage())
+        .describedAs(entries.toString())
+        .isEqualTo(
+            "key1: '1'\n"
+                + "key2: Value 2\n"
+                + "entityName: Country\n"
+                + "tenantId: TEST_TENANT\n"
+                + "errorMessage: This is the root cause of the error\n"
+                + "entityId: CA\n"
+                + "message: This is an error\n"
+                + "userName: Test User");
+  }
 
-        BusinessObjectContext ctx = new BusinessObjectContext("Country","CA");
-        Throwable rootCause = new RuntimeException("This is the root cause of the error");
-        Throwable t = new RuntimeException("Major exception",rootCause);
+  @Test
+  public void allLevelsTest() {
 
-        // mix and match in different order to ensure it all works
-        log.error("This is an error",iToLog,ctx,"key1",1L,"key2","Value 2",t);
-        log.error("This is an error",t,iToLog,ctx,"key1",1L,"key2","Value 2");
-        log.error("This is an error",iToLog,"key1",1L,t,ctx,"key2","Value 2");
+    log.error("Error", iToLog);
+    log.warn("Warning", iToLog);
+    log.info("Information", iToLog);
+    log.debug("Debug", iToLog);
+    log.trace("Trace", iToLog);
 
-        assertEquals(entries.toString(),3,entries.size());
-        for(LogEntry entry : entries) {
-            assertEquals(entries.toString(), Level.ERROR,entry.getLevel());
-            assertTrue(entries.toString(), entry.getError().isPresent());
-        }
+    assertEntriesSize(entries, 5);
+    assertYamlMessages(entries);
 
-        // first
-        assertYamlMessage(entries,0);
-        assertEquals(entries.toString(),"key1: '1'\n" +
-                        "key2: Value 2\n" +
-                        "entityName: Country\n" +
-                        "tenantId: TEST_TENANT\n" +
-                        "errorMessage: This is the root cause of the error\n" +
-                        "entityId: CA\n" +
-                        "message: This is an error\n" +
-                        "userName: Test User",
-                entries.get(0).getMessage());
-        // second
-        assertYamlMessage(entries,1);
-        assertEquals(entries.toString(),"key1: '1'\n" +
-                        "key2: Value 2\n" +
-                        "entityName: Country\n" +
-                        "errorMessage: This is the root cause of the error\n" +
-                        "tenantId: TEST_TENANT\n" +
-                        "entityId: CA\n" +
-                        "message: This is an error\n" +
-                        "userName: Test User",
-                entries.get(1).getMessage());
-        // third
-        assertYamlMessage(entries,2);
-        assertEquals(entries.toString(),"key1: '1'\n" +
-                        "key2: Value 2\n" +
-                        "entityName: Country\n" +
-                        "tenantId: TEST_TENANT\n" +
-                        "errorMessage: This is the root cause of the error\n" +
-                        "entityId: CA\n" +
-                        "message: This is an error\n" +
-                        "userName: Test User",
-                entries.get(2).getMessage());
-    }
+    // verify levels
+    assertEntryLevels(entries, ERROR, Level.WARN, Level.INFO, Level.DEBUG, Level.TRACE);
+    assertEntries(
+        entries,
+        "tenantId: TEST_TENANT\n" + "message: Error\n" + "userName: Test User",
+        "tenantId: TEST_TENANT\n" + "message: Warning\n" + "userName: Test User",
+        "tenantId: TEST_TENANT\n" + "message: Information\n" + "userName: Test User",
+        "tenantId: TEST_TENANT\n" + "message: Debug\n" + "userName: Test User",
+        "tenantId: TEST_TENANT\n" + "message: Trace\n" + "userName: Test User");
+  }
 
-    @Test
-    public void allLevelsTest() {
+  @Test
+  public void kitchenSinkWithMandatoryContextTest() {
 
-        log.error("Error",iToLog);
-        log.warn("Warning",iToLog);
-        log.info("Information",iToLog);
-        log.debug("Debug",iToLog);
-        log.trace("Trace",iToLog);
+    BusinessObjectContext ctx = new BusinessObjectContext("Country", "CA");
+    Throwable rootCause = new RuntimeException("This is the root cause of the error");
+    Throwable t = new RuntimeException("Major exception", rootCause);
 
-        assertEquals(entries.toString(),5,entries.size());
-        assertYamlMessages(entries);
+    // define mandatory context lambfa
+    StructLog4J.setMandatoryContextSupplier(
+        () -> new Object[] {"hostname", "Titanic", "serviceName", "MyService"});
 
-        assertEquals(entries.toString(),Level.ERROR,entries.get(0).getLevel());
-        assertEquals(entries.toString(),"tenantId: TEST_TENANT\n" +
-                "message: Error\n" +
-                "userName: Test User",entries.get(0).getMessage());
+    // mix and match in different order to ensure it all works
+    log.error("This is an error", iToLog, ctx, "key1", 1L, "key2", "Value 2", t);
+    log.error("This is an error", t, iToLog, ctx, "key1", 1L, "key2", "Value 2");
+    log.error("This is an error", iToLog, "key1", 1L, t, ctx, "key2", "Value 2");
 
-        assertEquals(entries.toString(),Level.WARN,entries.get(1).getLevel());
-        assertEquals(entries.toString(),"tenantId: TEST_TENANT\n" +
-                "message: Warning\n" +
-                "userName: Test User",entries.get(1).getMessage());
+    assertYamlMessages(entries);
 
-        assertEquals(entries.toString(),Level.INFO,entries.get(2).getLevel());
-        assertEquals(entries.toString(),"tenantId: TEST_TENANT\n" +
-                "message: Information\n" +
-                "userName: Test User",entries.get(2).getMessage());
+    assertEntryLevels(entries, ERROR, ERROR, ERROR);
+    assertEntryErrors(entries);
 
-        assertEquals(entries.toString(),Level.DEBUG,entries.get(3).getLevel());
-        assertEquals(entries.toString(),"tenantId: TEST_TENANT\n" +
-                "message: Debug\n" +
-                "userName: Test User",entries.get(3).getMessage());
-
-        assertEquals(entries.toString(),Level.TRACE,entries.get(4).getLevel());
-        assertEquals(entries.toString(),"tenantId: TEST_TENANT\n" +
-                "message: Trace\n" +
-                "userName: Test User",entries.get(4).getMessage());
-
-    }
-
-    @Test
-    public void kitchenSinkWithMandatoryContextTest() {
-
-        BusinessObjectContext ctx = new BusinessObjectContext("Country","CA");
-        Throwable rootCause = new RuntimeException("This is the root cause of the error");
-        Throwable t = new RuntimeException("Major exception",rootCause);
-
-        // define mandatory context lambfa
-        StructLog4J.setMandatoryContextSupplier(() -> new Object[]{"hostname","Titanic","serviceName","MyService"});
-
-        // mix and match in different order to ensure it all works
-        log.error("This is an error",iToLog,ctx,"key1",1L,"key2","Value 2",t);
-        log.error("This is an error",t,iToLog,ctx,"key1",1L,"key2","Value 2");
-        log.error("This is an error",iToLog,"key1",1L,t,ctx,"key2","Value 2");
-
-        assertEquals(entries.toString(),3,entries.size());
-        assertYamlMessages(entries);
-
-        for(LogEntry entry : entries) {
-            assertEquals(entries.toString(), Level.ERROR,entry.getLevel());
-            assertTrue(entries.toString(), entry.getError().isPresent());
-        }
-
-        // all messages should have mandatory context fields specified at the end
-
-        // first
-
-        assertEquals(entries.toString(),"key1: '1'\n" +
-                        "key2: Value 2\n" +
-                        "hostname: Titanic\n" +
-                        "entityName: Country\n" +
-                        "tenantId: TEST_TENANT\n" +
-                        "errorMessage: This is the root cause of the error\n" +
-                        "entityId: CA\n" +
-                        "message: This is an error\n" +
-                        "userName: Test User\n" +
-                        "serviceName: MyService",
-                entries.get(0).getMessage());
-        // second
-        assertEquals(entries.toString(),"key1: '1'\n" +
-                        "key2: Value 2\n" +
-                        "hostname: Titanic\n" +
-                        "entityName: Country\n" +
-                        "errorMessage: This is the root cause of the error\n" +
-                        "tenantId: TEST_TENANT\n" +
-                        "entityId: CA\n" +
-                        "message: This is an error\n" +
-                        "userName: Test User\n" +
-                        "serviceName: MyService",
-                entries.get(1).getMessage());
-        // third
-        assertEquals(entries.toString(),"key1: '1'\n" +
-                        "key2: Value 2\n" +
-                        "hostname: Titanic\n" +
-                        "entityName: Country\n" +
-                        "tenantId: TEST_TENANT\n" +
-                        "errorMessage: This is the root cause of the error\n" +
-                        "entityId: CA\n" +
-                        "message: This is an error\n" +
-                        "userName: Test User\n" +
-                        "serviceName: MyService",
-                entries.get(2).getMessage());
-    }
-
+    // all messages should have mandatory context fields specified at the end
+    assertEntries(
+        entries,
+        "key1: '1'\n"
+            + "key2: Value 2\n"
+            + "hostname: Titanic\n"
+            + "entityName: Country\n"
+            + "tenantId: TEST_TENANT\n"
+            + "errorMessage: This is the root cause of the error\n"
+            + "entityId: CA\n"
+            + "message: This is an error\n"
+            + "userName: Test User\n"
+            + "serviceName: MyService",
+        "key1: '1'\n"
+            + "key2: Value 2\n"
+            + "hostname: Titanic\n"
+            + "entityName: Country\n"
+            + "errorMessage: This is the root cause of the error\n"
+            + "tenantId: TEST_TENANT\n"
+            + "entityId: CA\n"
+            + "message: This is an error\n"
+            + "userName: Test User\n"
+            + "serviceName: MyService",
+        "key1: '1'\n"
+            + "key2: Value 2\n"
+            + "hostname: Titanic\n"
+            + "entityName: Country\n"
+            + "tenantId: TEST_TENANT\n"
+            + "errorMessage: This is the root cause of the error\n"
+            + "entityId: CA\n"
+            + "message: This is an error\n"
+            + "userName: Test User\n"
+            + "serviceName: MyService");
+  }
 }
-

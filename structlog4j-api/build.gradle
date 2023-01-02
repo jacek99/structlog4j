@@ -1,9 +1,5 @@
 dependencies {
+    api "org.slf4j:slf4j-api:$slf4jVersion"
 
-    // Lombok is KING
-    compileOnly "org.projectlombok:lombok:$lombokVersion"
-    compile "org.slf4j:slf4j-api:$slf4jVersion"
-
-    testCompile project(":structlog4j-test")
-    testCompileOnly "org.projectlombok:lombok:$lombokVersion"
+    testImplementation project(":structlog4j-test")
 }
