@@ -1,6 +1,7 @@
 package org.slf4j.impl;
 
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Optional;
 import lombok.Value;
 import org.slf4j.Logger;
@@ -11,9 +12,10 @@ import org.slf4j.event.Level;
 @Value
 public class TestLogger implements Logger {
 
+  public static final String NOT_USED = "Not used";
   private String name;
 
-  private LinkedList<LogEntry> entries = new LinkedList<>();
+  private List<LogEntry> entries = new LinkedList<>();
 
   @Override
   public String getName() {
@@ -32,17 +34,17 @@ public class TestLogger implements Logger {
 
   @Override
   public void trace(String format, Object arg) {
-    throw new RuntimeException("Not used");
+    throw new RuntimeException(NOT_USED);
   }
 
   @Override
   public void trace(String format, Object arg1, Object arg2) {
-    throw new RuntimeException("Not used");
+    throw new RuntimeException(NOT_USED);
   }
 
   @Override
   public void trace(String format, Object... arguments) {
-    throw new RuntimeException("Not used");
+    throw new RuntimeException(NOT_USED);
   }
 
   @Override
@@ -57,27 +59,27 @@ public class TestLogger implements Logger {
 
   @Override
   public void trace(Marker marker, String msg) {
-    throw new RuntimeException("Not used");
+    throw new RuntimeException(NOT_USED);
   }
 
   @Override
   public void trace(Marker marker, String format, Object arg) {
-    throw new RuntimeException("Not used");
+    throw new RuntimeException(NOT_USED);
   }
 
   @Override
   public void trace(Marker marker, String format, Object arg1, Object arg2) {
-    throw new RuntimeException("Not used");
+    throw new RuntimeException(NOT_USED);
   }
 
   @Override
   public void trace(Marker marker, String format, Object... argArray) {
-    throw new RuntimeException("Not used");
+    throw new RuntimeException(NOT_USED);
   }
 
   @Override
   public void trace(Marker marker, String msg, Throwable t) {
-    throw new RuntimeException("Not used");
+    throw new RuntimeException(NOT_USED);
   }
 
   @Override
@@ -92,17 +94,17 @@ public class TestLogger implements Logger {
 
   @Override
   public void debug(String format, Object arg) {
-    throw new RuntimeException("Not used");
+    throw new RuntimeException(NOT_USED);
   }
 
   @Override
   public void debug(String format, Object arg1, Object arg2) {
-    throw new RuntimeException("Not used");
+    throw new RuntimeException(NOT_USED);
   }
 
   @Override
   public void debug(String format, Object... arguments) {
-    throw new RuntimeException("Not used");
+    throw new RuntimeException(NOT_USED);
   }
 
   @Override
@@ -117,27 +119,27 @@ public class TestLogger implements Logger {
 
   @Override
   public void debug(Marker marker, String msg) {
-    throw new RuntimeException("Not used");
+    throw new RuntimeException(NOT_USED);
   }
 
   @Override
   public void debug(Marker marker, String format, Object arg) {
-    throw new RuntimeException("Not used");
+    throw new RuntimeException(NOT_USED);
   }
 
   @Override
   public void debug(Marker marker, String format, Object arg1, Object arg2) {
-    throw new RuntimeException("Not used");
+    throw new RuntimeException(NOT_USED);
   }
 
   @Override
   public void debug(Marker marker, String format, Object... arguments) {
-    throw new RuntimeException("Not used");
+    throw new RuntimeException(NOT_USED);
   }
 
   @Override
   public void debug(Marker marker, String msg, Throwable t) {
-    throw new RuntimeException("Not used");
+    throw new RuntimeException(NOT_USED);
   }
 
   @Override
@@ -152,17 +154,17 @@ public class TestLogger implements Logger {
 
   @Override
   public void info(String format, Object arg) {
-    throw new RuntimeException("Not used");
+    throw new RuntimeException(NOT_USED);
   }
 
   @Override
   public void info(String format, Object arg1, Object arg2) {
-    throw new RuntimeException("Not used");
+    throw new RuntimeException(NOT_USED);
   }
 
   @Override
   public void info(String format, Object... arguments) {
-    throw new RuntimeException("Not used");
+    throw new RuntimeException(NOT_USED);
   }
 
   @Override
@@ -177,27 +179,27 @@ public class TestLogger implements Logger {
 
   @Override
   public void info(Marker marker, String msg) {
-    throw new RuntimeException("Not used");
+    throw new RuntimeException(NOT_USED);
   }
 
   @Override
   public void info(Marker marker, String format, Object arg) {
-    throw new RuntimeException("Not used");
+    throw new RuntimeException(NOT_USED);
   }
 
   @Override
   public void info(Marker marker, String format, Object arg1, Object arg2) {
-    throw new RuntimeException("Not used");
+    throw new RuntimeException(NOT_USED);
   }
 
   @Override
   public void info(Marker marker, String format, Object... arguments) {
-    throw new RuntimeException("Not used");
+    throw new RuntimeException(NOT_USED);
   }
 
   @Override
   public void info(Marker marker, String msg, Throwable t) {
-    throw new RuntimeException("Not used");
+    throw new RuntimeException(NOT_USED);
   }
 
   @Override
@@ -212,17 +214,17 @@ public class TestLogger implements Logger {
 
   @Override
   public void warn(String format, Object arg) {
-    throw new RuntimeException("Not used");
+    throw new RuntimeException(NOT_USED);
   }
 
   @Override
   public void warn(String format, Object... arguments) {
-    throw new RuntimeException("Not used");
+    throw new RuntimeException(NOT_USED);
   }
 
   @Override
   public void warn(String format, Object arg1, Object arg2) {
-    throw new RuntimeException("Not used");
+    throw new RuntimeException(NOT_USED);
   }
 
   @Override
@@ -237,27 +239,27 @@ public class TestLogger implements Logger {
 
   @Override
   public void warn(Marker marker, String msg) {
-    throw new RuntimeException("Not used");
+    throw new RuntimeException(NOT_USED);
   }
 
   @Override
   public void warn(Marker marker, String format, Object arg) {
-    throw new RuntimeException("Not used");
+    throw new RuntimeException(NOT_USED);
   }
 
   @Override
   public void warn(Marker marker, String format, Object arg1, Object arg2) {
-    throw new RuntimeException("Not used");
+    throw new RuntimeException(NOT_USED);
   }
 
   @Override
   public void warn(Marker marker, String format, Object... arguments) {
-    throw new RuntimeException("Not used");
+    throw new RuntimeException(NOT_USED);
   }
 
   @Override
   public void warn(Marker marker, String msg, Throwable t) {
-    throw new RuntimeException("Not used");
+    throw new RuntimeException(NOT_USED);
   }
 
   @Override
@@ -271,6 +273,7 @@ public class TestLogger implements Logger {
   }
 
   @Override
+  @SuppressWarnings("PMD.AvoidReassigningParameters")
   public void error(String format, Object arg) {
     // used in internal errors
     format = format.replace("{}", "%s");
@@ -278,6 +281,7 @@ public class TestLogger implements Logger {
   }
 
   @Override
+  @SuppressWarnings("PMD.AvoidReassigningParameters")
   public void error(String format, Object arg1, Object arg2) {
     // used in internal errors
     format = format.replace("{}", "%s");
@@ -285,6 +289,7 @@ public class TestLogger implements Logger {
   }
 
   @Override
+  @SuppressWarnings("PMD.AvoidReassigningParameters")
   public void error(String format, Object... arguments) {
     // used in internal errors
     format = format.replace("{}", "%s");
@@ -303,26 +308,26 @@ public class TestLogger implements Logger {
 
   @Override
   public void error(Marker marker, String msg) {
-    throw new RuntimeException("Not used");
+    throw new RuntimeException(NOT_USED);
   }
 
   @Override
   public void error(Marker marker, String format, Object arg) {
-    throw new RuntimeException("Not used");
+    throw new RuntimeException(NOT_USED);
   }
 
   @Override
   public void error(Marker marker, String format, Object arg1, Object arg2) {
-    throw new RuntimeException("Not used");
+    throw new RuntimeException(NOT_USED);
   }
 
   @Override
   public void error(Marker marker, String format, Object... arguments) {
-    throw new RuntimeException("Not used");
+    throw new RuntimeException(NOT_USED);
   }
 
   @Override
   public void error(Marker marker, String msg, Throwable t) {
-    throw new RuntimeException("Not used");
+    throw new RuntimeException(NOT_USED);
   }
 }

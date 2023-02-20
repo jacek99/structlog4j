@@ -4,20 +4,26 @@ import static org.assertj.core.api.Assertions.*;
 
 import com.github.structlog4j.test.TestUtils;
 import com.github.structlog4j.test.samples.TestSecurityContext;
-import java.util.LinkedList;
+import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.slf4j.impl.LogEntry;
 import org.slf4j.impl.TestLogger;
 
 /** Tests for handling of invalid input */
+@SuppressWarnings({
+  "PMD.BeanMembersShouldSerialize",
+  "PMD.JUnitTestContainsTooManyAsserts",
+  "PMD.DataflowAnomalyAnalysis"
+})
 public class ErrorKeyValuePairTests {
 
+  public static final String THIS_IS_AN_ERROR = "This is an error";
   private SLogger log;
-  private LinkedList<LogEntry> entries;
+  private List<LogEntry> entries;
 
   @BeforeEach
-  public void setup() {
+  public void setUp() {
     TestUtils.initForTesting();
 
     log = (SLogger) SLoggerFactory.getLogger(BasicKeyValuePairTests.class);
@@ -26,19 +32,19 @@ public class ErrorKeyValuePairTests {
 
   @Test
   public void justKeyButNoValueTest() {
-    log.error("This is an error", "just_key_but_no_value");
+    log.error(THIS_IS_AN_ERROR, "just_key_but_no_value");
 
     // does not actually generate an error, just shows the value as empty
     assertThat(entries.size()).describedAs(entries.toString()).isEqualTo(1);
     // the key with missing value was not logged
     assertThat(entries.get(0).getMessage())
         .describedAs(entries.toString())
-        .isEqualTo("This is an error");
+        .isEqualTo(THIS_IS_AN_ERROR);
   }
 
   @Test
   public void keyWithSpacesTest() {
-    log.error("This is an error", "key with spaces", 1L);
+    log.error(THIS_IS_AN_ERROR, "key with spaces", 1L);
 
     // does not actually generate an error, just shows the value as empty
     assertThat(entries.size()).describedAs(entries.toString()).isEqualTo(2);
@@ -50,7 +56,7 @@ public class ErrorKeyValuePairTests {
     // as we could
     assertThat(entries.get(1).getMessage())
         .describedAs(entries.toString())
-        .isEqualTo("This is an error");
+        .isEqualTo(THIS_IS_AN_ERROR);
   }
 
   @Test
@@ -60,7 +66,7 @@ public class ErrorKeyValuePairTests {
     TestSecurityContext toLog = new TestSecurityContext("test_user", "TEST_TENANT");
 
     log.error(
-        "This is an error", "key with spaces", 1L, "good_key_that_will_be_skipped", 2L, toLog, t);
+        THIS_IS_AN_ERROR, "key with spaces", 1L, "good_key_that_will_be_skipped", 2L, toLog, t);
 
     // does not actually generate an error, just shows the value as empty
     assertThat(entries.size()).describedAs(entries.toString()).isEqualTo(2);
@@ -81,6 +87,7 @@ public class ErrorKeyValuePairTests {
   }
 
   @Test
+  @SuppressWarnings("PMD.ReturnEmptyArrayRatherThanNull")
   public void iToLogWithNullTest() {
     IToLog toLog =
         new IToLog() {
@@ -90,7 +97,7 @@ public class ErrorKeyValuePairTests {
           }
         };
 
-    log.error("This is an error", toLog);
+    log.error(THIS_IS_AN_ERROR, toLog);
 
     // does not actually generate an error, just shows the value as empty
     assertThat(entries.size()).describedAs(entries.toString()).isEqualTo(2);
@@ -103,7 +110,7 @@ public class ErrorKeyValuePairTests {
     // as we could
     assertThat(entries.get(1).getMessage())
         .describedAs(entries.toString())
-        .isEqualTo("This is an error");
+        .isEqualTo(THIS_IS_AN_ERROR);
   }
 
   @Test
@@ -117,7 +124,7 @@ public class ErrorKeyValuePairTests {
           }
         };
 
-    log.error("This is an error", toLog);
+    log.error(THIS_IS_AN_ERROR, toLog);
 
     // does not actually generate an error, just shows the value as empty
     assertThat(entries.size()).describedAs(entries.toString()).isEqualTo(2);
@@ -130,7 +137,7 @@ public class ErrorKeyValuePairTests {
     // as we could
     assertThat(entries.get(1).getMessage())
         .describedAs(entries.toString())
-        .isEqualTo("This is an error");
+        .isEqualTo(THIS_IS_AN_ERROR);
   }
 
   @Test
@@ -144,7 +151,7 @@ public class ErrorKeyValuePairTests {
           }
         };
 
-    log.error("This is an error", toLog);
+    log.error(THIS_IS_AN_ERROR, toLog);
 
     // does not actually generate an error, just shows the value as empty
     assertThat(entries.size()).describedAs(entries.toString()).isEqualTo(2);
@@ -171,7 +178,7 @@ public class ErrorKeyValuePairTests {
           }
         };
 
-    log.error("This is an error", toLog);
+    log.error(THIS_IS_AN_ERROR, toLog);
 
     // does not actually generate an error, just shows the value as empty
     assertThat(entries.size()).describedAs(entries.toString()).isEqualTo(2);

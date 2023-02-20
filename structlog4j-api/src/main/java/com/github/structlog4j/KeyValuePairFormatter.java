@@ -17,8 +17,8 @@ public class KeyValuePairFormatter implements IFormatter<StringBuilder> {
   }
 
   // thread local StringBuilder used for all log concatenation
-  final ThreadLocal<StringBuilder> BLD =
-      new ThreadLocal<StringBuilder>() {
+  private final transient ThreadLocal<StringBuilder> builderThreadLocal =
+      new ThreadLocal<>() {
         @Override
         protected StringBuilder initialValue() {
           return new StringBuilder();
@@ -33,7 +33,7 @@ public class KeyValuePairFormatter implements IFormatter<StringBuilder> {
 
   @Override
   public StringBuilder start(Logger log) {
-    return BLD.get();
+    return builderThreadLocal.get();
   }
 
   @Override

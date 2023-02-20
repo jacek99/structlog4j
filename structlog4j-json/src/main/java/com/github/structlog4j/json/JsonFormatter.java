@@ -36,6 +36,7 @@ public class JsonFormatter implements IFormatter<JsonObjectBuilder> {
   }
 
   @Override
+  @SuppressWarnings("PMD.AvoidReassigningParameters")
   public final IFormatter<JsonObjectBuilder> addKeyValue(
       Logger log, JsonObjectBuilder bld, String key, Object value) {
     // avoid overriding the "message" field

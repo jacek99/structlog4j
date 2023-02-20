@@ -18,10 +18,10 @@ public class StructLog4J {
   private Optional<IToLog> mandatoryContextSupplier = Optional.empty();
 
   // default formatter just does a toString(), regardless of object type
-  private Function<Object, String> defaultValueFormatter =
+  private static final Function<Object, String> DEFAULT_VALUE_FORMATTER =
       (value) -> value == null ? VALUE_NULL : value.toString();
 
-  private Function<Object, String> valueFormatter = defaultValueFormatter;
+  private Function<Object, String> valueFormatter = DEFAULT_VALUE_FORMATTER;
 
   /**
    * Allows to override the default formatter. Should be only done once during application startup

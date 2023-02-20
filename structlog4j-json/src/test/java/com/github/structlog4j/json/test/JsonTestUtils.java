@@ -4,7 +4,6 @@ import java.io.StringReader;
 import java.util.List;
 import javax.json.Json;
 import javax.json.JsonReader;
-import javax.json.JsonStructure;
 import lombok.experimental.UtilityClass;
 import org.slf4j.impl.LogEntry;
 
@@ -13,9 +12,9 @@ import org.slf4j.impl.LogEntry;
 public class JsonTestUtils {
   /** Ensures message is valid JSON */
   public void assertJsonMessage(List<LogEntry> entries, int entryIndex) {
-    try {
-      JsonReader reader = Json.createReader(new StringReader(entries.get(entryIndex).getMessage()));
-      JsonStructure parsed = reader.read();
+    try (JsonReader reader =
+        Json.createReader(new StringReader(entries.get(entryIndex).getMessage()))) {
+      reader.read();
     } catch (Exception e) {
       throw new RuntimeException("Unable to parse: " + entries.get(entryIndex).getMessage(), e);
     }

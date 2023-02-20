@@ -49,6 +49,7 @@ public class YamlFormatter implements IFormatter<Map<String, String>> {
   }
 
   @Override
+  @SuppressWarnings("PMD.AvoidReassigningParameters")
   public final IFormatter<Map<String, String>> addKeyValue(
       Logger log, Map<String, String> bld, String key, Object value) {
     // avoid overriding the "message" field

@@ -1,8 +1,8 @@
 // common testing utilities across different modules
 dependencies {
-    api project(":structlog4j-api")
-    api project(":structlog4j-json")
+	api project(":structlog4j-api")
+	api project(":structlog4j-json")
 
-    api "org.junit.jupiter:junit-jupiter:${junitVersion}"
-    implementation "org.assertj:assertj-core:${assertJVersion}"
+	api "org.junit.jupiter:junit-jupiter:${junitVersion}"
+	implementation "org.assertj:assertj-core:${assertJVersion}"
 }

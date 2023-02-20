@@ -18,18 +18,31 @@ def globalVersion = new Version(version)
 subprojects {
 
     apply plugin: 'java-library'
-    //apply plugin: 'com.github.spotbugs'
+
+    apply plugin: 'pmd'
+    apply plugin: 'com.github.spotbugs'
     apply plugin: 'com.diffplug.spotless'
+
+    apply plugin: 'maven-publish'
+    apply plugin: 'signing'
+
+    version = globalVersion
+    status = version.status
 
     java {
         toolchain {
             sourceCompatibility = JavaLanguageVersion.of(11)
             targetCompatibility = JavaLanguageVersion.of(11)
         }
+        withJavadocJar()
+        withSourcesJar()
     }
 
-    version = globalVersion
-    status = version.status
+    javadoc {
+        if(JavaVersion.current().isJava9Compatible()) {
+            options.addBooleanOption('html5', true)
+        }
+    }
 
     repositories {
         mavenCentral()
@@ -50,79 +63,93 @@ subprojects {
         testImplementation "org.assertj:assertj-core:${assertJVersion}"
     }
 
+    // code quality plugins
+    pmd {
+        consoleOutput = true
+        toolVersion = "6.21.0"
+        rulesMinimumPriority = 5
+        ruleSets = ["category/java/errorprone.xml", "category/java/bestpractices.xml"]
+        threads = 4
+    }
+
     spotless {
+        format 'misc', {
+            // define the files to apply `misc` to
+            target '*.gradle', '*.md', '.gitignore'
+
+            // define the steps to apply to those files
+            trimTrailingWhitespace()
+            indentWithTabs()
+            endWithNewline()
+        }
+
         java {
             googleJavaFormat()
             formatAnnotations()
+            removeUnusedImports()
         }
     }
-    check.dependsOn spotlessApply
+    check.dependsOn "spotlessApply"
 
-            // code quality
-//    findbugs {
-//        effort = "max"
-//        reportLevel = "medium"
-//        includeFilter = file("$rootProject.projectDir/findBugsIncludeFilter.xml")
-//        excludeFilter = file("$rootProject.projectDir/findBugsExcludeFilter.xml")
-//    }
-//
-//    tasks.withType(FindBugs) {
-//        reports {
-//            xml.enabled false
-//            html.enabled true
-//        }
-//    }
+    // code quality
+    spotbugs {
+        effort = "max"
+        reportLevel = "medium"
+        includeFilter = file("$rootProject.projectDir/spotBugsIncludeFilter.xml")
+        excludeFilter = file("$rootProject.projectDir/spotBugsExcludeFilter.xml")
+    }
+
+    spotbugsMain {
+        reports {
+            html {
+                required = true
+                outputLocation = file("$buildDir/reports/spotbugs/main/spotbugs.html")
+                stylesheet = 'fancy-hist.xsl'
+            }
+        }
+    }
 
     check.dependsOn test
     build.dependsOn check
-//
-//    // artifacts
-//    task sourceJar(type: Jar) {
-//        from sourceSets.main.allSource
-//        classifier = 'sources'
-//    }
-//    task javadocJar(type: Jar, dependsOn: javadoc) {
-//        classifier = 'javadoc'
-//        from javadoc.destinationDir
-//    }
 
-//    // publishing artifacts to Bintray JCenter
-//    configurations {
-//        published
-//    }
-//
-//    // upload to JCenter
-//    artifacts {
-//        published sourceJar
-//        published javadocJar
-//    }
+    // publish to Maven Central
+    publishing {
+        publications {
+            mavenJava(MavenPublication) {
+                from components.java
+                pom {
+                    name = 'StructLog4J'
+                    description = 'Structured logging library for Java, based on SLF4J'
+                    url = 'https://github.com/jacek99/structlog4j'
+                    licenses {
+                        license {
+                            name = 'MIT'
+                            url = 'https://github.com/jacek99/structlog4j/blob/master/LICENSE'
+                        }
+                    }
+                    developers {
+                        developer {
+                            id = 'jacek99'
+                            name = 'Jacek Furmankiewicz'
+                            email = 'jacek99@gmail.com'
+                        }
+                    }
+                    scm {
+                        connection = 'scm:git:git://github.com:jacek99/structlog4j.git'
+                        developerConnection = 'scm:git:ssh://git@github.com:jacek99/structlog4j.git'
+                        url = 'https://github.com/jacek99/structlog4j'
+                    }
+                }
+            }
+        }
+        repositories {
+            mavenCentral()
+        }
+    }
 
-//    apply plugin: 'com.jfrog.bintray'
-//    apply plugin: 'maven'
-//
-//    ext.publish = true
-//    bintray {
-//        // grab credentials from environment variables
-//        user = "$System.env.BINTRAY_USER"
-//        key = "$System.env.BINTRAY_API_KEY"
-//
-//        configurations = ['published', 'archives']
-//        dryRun = false //Whether to run this as dry-run, without deploying
-//        publish = true //If version should be auto published after an upload
-//        pkg {
-//            repo = 'structlog4j'
-//            name = project.name
-//            desc = 'Structured logging for Java on top of the SLF4jAPI'
-//            websiteUrl = 'https://github.com/jacek99/structlog4j'
-//            issueTrackerUrl = 'https://github.com/jacek99/structlog4j'
-//            vcsUrl = 'https://github.com/jacek99/structlog4j'
-//            licenses = ['MIT']
-//            publicDownloadNumbers = true
-//        }
-//    }
-
-//    // ensure code quality for published artifacts
-//    install.dependsOn check
+    signing {
+        sign publishing.publications.mavenJava
+    }
 }
 
 class Version {

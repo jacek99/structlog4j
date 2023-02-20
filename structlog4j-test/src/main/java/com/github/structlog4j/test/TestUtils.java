@@ -4,7 +4,6 @@ import static org.assertj.core.api.Assertions.*;
 
 import com.github.structlog4j.KeyValuePairFormatter;
 import com.github.structlog4j.StructLog4J;
-import java.util.LinkedList;
 import java.util.List;
 import org.slf4j.event.Level;
 import org.slf4j.impl.LogEntry;
@@ -45,7 +44,7 @@ public final class TestUtils {
    * @param entries List of entries
    * @param expectedMessages Collection of expected messages in each entry, in order
    */
-  public static void assertEntries(LinkedList<LogEntry> entries, String... expectedMessages) {
+  public static void assertEntries(List<LogEntry> entries, String... expectedMessages) {
     assertThat(entries.size()).describedAs(entries.toString()).isEqualTo(expectedMessages.length);
 
     for (int i = 0; i < expectedMessages.length; i++) {
@@ -61,7 +60,7 @@ public final class TestUtils {
    * @param entries Entries
    * @param expectedLevels Expected Level for every entry, in order
    */
-  public static void assertEntryLevels(LinkedList<LogEntry> entries, Level... expectedLevels) {
+  public static void assertEntryLevels(List<LogEntry> entries, Level... expectedLevels) {
     assertThat(entries.size()).describedAs(entries.toString()).isEqualTo(expectedLevels.length);
 
     for (int i = 0; i < expectedLevels.length; i++) {
@@ -76,7 +75,7 @@ public final class TestUtils {
    *
    * @param entries Entries
    */
-  public static void assertEntryErrors(LinkedList<LogEntry> entries) {
+  public static void assertEntryErrors(List<LogEntry> entries) {
     entries.forEach(
         e -> {
           assertThat(e.getError()).describedAs(entries.toString()).isPresent();
@@ -84,7 +83,7 @@ public final class TestUtils {
   }
 
   /** Asserts number of logged entries. */
-  public static void assertEntriesSize(LinkedList<LogEntry> entries, int size) {
+  public static void assertEntriesSize(List<LogEntry> entries, int size) {
     assertThat(entries.size()).describedAs(entries.toString()).isEqualTo(size);
   }
 }

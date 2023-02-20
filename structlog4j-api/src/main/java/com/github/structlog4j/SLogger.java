@@ -12,6 +12,7 @@ import org.slf4j.event.Level;
  * @author Jacek Furmankiewicz
  */
 @RequiredArgsConstructor
+@SuppressWarnings("unchecked")
 public class SLogger implements ILogger {
 
   private static final String KEY_ERROR_MESSAGE = "errorMessage";
@@ -88,6 +89,12 @@ public class SLogger implements ILogger {
     return slfjLogger.isTraceEnabled();
   }
 
+  @SuppressWarnings({
+    "PMD.AvoidReassigningParameters",
+    "PMD.GuardLogStatement",
+    "PMD.AvoidReassigningLoopVariables",
+    "PMD.DataflowAnomalyAnalysis"
+  })
   private void log(Level level, String message, Object... params) {
     try {
       // just in case...

@@ -1,6 +1,6 @@
 dependencies {
-    api project(":structlog4j-api")
-    api "org.yaml:snakeyaml:$yamlVersion"
+	api project(":structlog4j-api")
+	api "org.yaml:snakeyaml:$yamlVersion"
 
-    testImplementation project(":structlog4j-test")
+	testImplementation project(":structlog4j-test")
 }

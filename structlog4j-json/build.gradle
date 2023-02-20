@@ -1,6 +1,6 @@
 dependencies {
-    api project(":structlog4j-api")
-    api "org.glassfish:javax.json:$jsonVersion"
+	api project(":structlog4j-api")
+	api "org.glassfish:javax.json:$jsonVersion"
 
-    testImplementation project(":structlog4j-test")
+	testImplementation project(":structlog4j-test")
 }

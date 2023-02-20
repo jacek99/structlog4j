@@ -13,7 +13,6 @@ import com.github.structlog4j.test.TestUtils;
 import com.github.structlog4j.test.samples.TestSecurityContext;
 import com.github.structlog4j.yaml.YamlFormatter;
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
@@ -23,13 +22,19 @@ import org.slf4j.impl.LogEntry;
 import org.slf4j.impl.TestLogger;
 
 /** Tests for handling of invalid input */
+@SuppressWarnings({
+  "PMD.BeanMembersShouldSerialize",
+  "PMD.JUnitTestContainsTooManyAsserts",
+  "PMD.DataflowAnomalyAnalysis",
+  "PMD.AvoidDuplicateLiterals"
+})
 public class ErrorYamlTests {
 
   private SLogger log;
-  private LinkedList<LogEntry> entries;
+  private List<LogEntry> entries;
 
   @BeforeEach
-  public void setup() {
+  public void setUp() {
     TestUtils.initForTesting();
     StructLog4J.setFormatter(YamlFormatter.getInstance());
 
@@ -96,6 +101,7 @@ public class ErrorYamlTests {
   }
 
   @Test
+  @SuppressWarnings("PMD.ReturnEmptyArrayRatherThanNull")
   public void iToLogWithNullTest() {
     IToLog toLog =
         new IToLog() {

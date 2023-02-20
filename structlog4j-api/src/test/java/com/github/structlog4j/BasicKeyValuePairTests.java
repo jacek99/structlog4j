@@ -5,7 +5,7 @@ import static org.assertj.core.api.Assertions.*;
 
 import com.github.structlog4j.test.samples.BusinessObjectContext;
 import com.github.structlog4j.test.samples.TestSecurityContext;
-import java.util.LinkedList;
+import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.slf4j.event.Level;
@@ -17,15 +17,22 @@ import org.slf4j.impl.TestLogger;
  *
  * @author Jacek Furmankiewicz
  */
+@SuppressWarnings({
+  "PMD.BeanMembersShouldSerialize",
+  "PMD.JUnitTestContainsTooManyAsserts",
+  "PMD.DataflowAnomalyAnalysis",
+  "PMD.AvoidDuplicateLiterals"
+})
 public class BasicKeyValuePairTests {
 
+  public static final String THIS_IS_AN_ERROR = "This is an error";
   private SLogger log;
-  private LinkedList<LogEntry> entries;
+  private List<LogEntry> entries;
 
   private TestSecurityContext iToLog = new TestSecurityContext("Test User", "TEST_TENANT");
 
   @BeforeEach
-  public void setup() {
+  public void setUp() {
     initForTesting();
 
     log = (SLogger) SLoggerFactory.getLogger(BasicKeyValuePairTests.class);
@@ -34,15 +41,15 @@ public class BasicKeyValuePairTests {
 
   @Test
   public void basicTest() {
-    log.error("This is an error");
+    log.error(THIS_IS_AN_ERROR);
 
     assertThat(entries.size()).describedAs(entries.toString()).isEqualTo(1);
-    assertMessage(entries, 0, Level.ERROR, "This is an error", false);
+    assertMessage(entries, 0, Level.ERROR, THIS_IS_AN_ERROR, false);
   }
 
   @Test
   public void singleKeyValueTest() {
-    log.error("This is an error", "user", "Jacek");
+    log.error(THIS_IS_AN_ERROR, "user", "Jacek");
 
     assertThat(entries.size()).describedAs(entries.toString()).isEqualTo(1);
     assertMessage(entries, 0, Level.ERROR, "This is an error user=Jacek", false);
@@ -50,7 +57,7 @@ public class BasicKeyValuePairTests {
 
   @Test
   public void singleKeyValueWithSpaceTest() {
-    log.error("This is an error", "user", "Jacek Furmankiewicz");
+    log.error(THIS_IS_AN_ERROR, "user", "Jacek Furmankiewicz");
 
     assertThat(entries.size()).describedAs(entries.toString()).isEqualTo(1);
     assertMessage(entries, 0, Level.ERROR, "This is an error user=\"Jacek Furmankiewicz\"", false);
@@ -58,7 +65,7 @@ public class BasicKeyValuePairTests {
 
   @Test
   public void singleKeyNullValueTest() {
-    log.error("This is an error", "user", null);
+    log.error(THIS_IS_AN_ERROR, "user", null);
 
     assertThat(entries.size()).describedAs(entries.toString()).isEqualTo(1);
     assertMessage(entries, 0, Level.ERROR, "This is an error user=null", false);
@@ -66,7 +73,7 @@ public class BasicKeyValuePairTests {
 
   @Test
   public void multipleKeyValuePairsTest() {
-    log.error("This is an error", "user", "John Doe", "tenant", "System", "requestId", "1234");
+    log.error(THIS_IS_AN_ERROR, "user", "John Doe", "tenant", "System", "requestId", "1234");
 
     assertThat(entries.size()).describedAs(entries.toString()).isEqualTo(1);
     assertMessage(
@@ -79,7 +86,7 @@ public class BasicKeyValuePairTests {
 
   @Test
   public void iToLogSingleTest() {
-    log.error("This is an error", iToLog);
+    log.error(THIS_IS_AN_ERROR, iToLog);
 
     assertThat(entries.size()).describedAs(entries.toString()).isEqualTo(1);
     assertMessage(
@@ -95,7 +102,7 @@ public class BasicKeyValuePairTests {
 
     BusinessObjectContext ctx = new BusinessObjectContext("Country", "CA");
 
-    log.error("This is an error", iToLog, ctx);
+    log.error(THIS_IS_AN_ERROR, iToLog, ctx);
 
     assertThat(entries.size()).describedAs(entries.toString()).isEqualTo(1);
     assertMessage(
@@ -110,7 +117,7 @@ public class BasicKeyValuePairTests {
   public void mixedKeyValueIToLogTest() {
     BusinessObjectContext ctx = new BusinessObjectContext("Country", "CA");
 
-    log.error("This is an error", iToLog, ctx, "key1", 1L, "key2", "Value 2");
+    log.error(THIS_IS_AN_ERROR, iToLog, ctx, "key1", 1L, "key2", "Value 2");
 
     assertThat(entries.size()).describedAs(entries.toString()).isEqualTo(1);
     assertMessage(
@@ -126,7 +133,7 @@ public class BasicKeyValuePairTests {
 
     Throwable t = new RuntimeException("Major exception");
 
-    log.error("This is an error", t);
+    log.error(THIS_IS_AN_ERROR, t);
 
     assertThat(entries.size()).describedAs(entries.toString()).isEqualTo(1);
     assertMessage(
@@ -143,7 +150,7 @@ public class BasicKeyValuePairTests {
     Throwable rootCause = new RuntimeException("This is the root cause of the error");
     Throwable t = new RuntimeException("Major exception", rootCause);
 
-    log.error("This is an error", t);
+    log.error(THIS_IS_AN_ERROR, t);
 
     assertThat(entries.size()).describedAs(entries.toString()).isEqualTo(1);
     assertMessage(
@@ -159,7 +166,7 @@ public class BasicKeyValuePairTests {
 
     Throwable t = new RuntimeException("Major exception");
 
-    log.error("This is an error", "key1", 1L, "key2", "Value 2", t);
+    log.error(THIS_IS_AN_ERROR, "key1", 1L, "key2", "Value 2", t);
 
     assertThat(entries.size()).describedAs(entries.toString()).isEqualTo(1);
     assertMessage(
@@ -178,9 +185,9 @@ public class BasicKeyValuePairTests {
     Throwable t = new RuntimeException("Major exception", rootCause);
 
     // mix and match in different order to ensure it all works
-    log.error("This is an error", iToLog, ctx, "key1", 1L, "key2", "Value 2", t);
-    log.error("This is an error", t, iToLog, ctx, "key1", 1L, "key2", "Value 2");
-    log.error("This is an error", iToLog, "key1", 1L, t, ctx, "key2", "Value 2");
+    log.error(THIS_IS_AN_ERROR, iToLog, ctx, "key1", 1L, "key2", "Value 2", t);
+    log.error(THIS_IS_AN_ERROR, t, iToLog, ctx, "key1", 1L, "key2", "Value 2");
+    log.error(THIS_IS_AN_ERROR, iToLog, "key1", 1L, t, ctx, "key2", "Value 2");
 
     assertThat(entries.size()).describedAs(entries.toString()).isEqualTo(3);
     for (LogEntry entry : entries) {
@@ -260,9 +267,9 @@ public class BasicKeyValuePairTests {
         () -> new Object[] {"hostname", "Titanic", "serviceName", "MyService"});
 
     // mix and match in different order to ensure it all works
-    log.error("This is an error", iToLog, ctx, "key1", 1L, "key2", "Value 2", t);
-    log.error("This is an error", t, iToLog, ctx, "key1", 1L, "key2", "Value 2");
-    log.error("This is an error", iToLog, "key1", 1L, t, ctx, "key2", "Value 2");
+    log.error(THIS_IS_AN_ERROR, iToLog, ctx, "key1", 1L, "key2", "Value 2", t);
+    log.error(THIS_IS_AN_ERROR, t, iToLog, ctx, "key1", 1L, "key2", "Value 2");
+    log.error(THIS_IS_AN_ERROR, iToLog, "key1", 1L, t, ctx, "key2", "Value 2");
 
     assertThat(entries.size()).describedAs(entries.toString()).isEqualTo(3);
     for (LogEntry entry : entries) {
